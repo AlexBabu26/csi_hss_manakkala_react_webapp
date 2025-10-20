@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { useContent } from '../../hooks/useContent';
 import type { AboutPageContent, Leadership, Facility } from '../../types';
@@ -66,7 +67,12 @@ const ManageAboutPage = () => {
                 
                 <fieldset className="space-y-4 border p-4 rounded-md">
                     <legend className="text-xl font-semibold px-2">General Content</legend>
-                     <ImageUpload label="Banner Image" currentImageUrl={formData.bannerImageUrl} onImageChange={(b64) => handleImageChange(b64, 'bannerImageUrl')} />
+                     <ImageUpload 
+                        label="Banner Image" 
+                        currentImageUrl={formData.bannerImageUrl} 
+                        onImageChange={(b64) => handleImageChange(b64, 'bannerImageUrl')}
+                        aspect={3/1}
+                    />
                     <div>
                         <label htmlFor="mission" className={labelClasses}>Our Mission</label>
                         <textarea id="mission" name="mission" rows={4} value={formData.mission} onChange={handleChange} className={inputClasses}></textarea>
@@ -82,7 +88,12 @@ const ManageAboutPage = () => {
                     {formData.leadership.map((person, index) => (
                         <div key={person.id} className="p-3 border-t relative space-y-3">
                             <button type="button" onClick={() => handleDeleteItem(person.id, 'leadership')} className="absolute top-2 right-2 text-red-500 hover:text-red-700 p-1" aria-label={`Delete ${person.name}`}>&times;</button>
-                            <ImageUpload label="Profile Image" currentImageUrl={person.imageUrl} onImageChange={(b64) => handleImageChange(b64, 'leadership', index)} />
+                            <ImageUpload 
+                                label="Profile Image" 
+                                currentImageUrl={person.imageUrl} 
+                                onImageChange={(b64) => handleImageChange(b64, 'leadership', index)}
+                                aspect={1}
+                            />
                             <input type="text" placeholder="Name" value={person.name} onChange={(e) => handleLeadershipChange(index, 'name', e.target.value)} className={inputClasses} />
                             <input type="text" placeholder="Title" value={person.title} onChange={(e) => handleLeadershipChange(index, 'title', e.target.value)} className={inputClasses} />
                         </div>
@@ -95,7 +106,12 @@ const ManageAboutPage = () => {
                     {formData.facilities.map((facility, index) => (
                         <div key={facility.id} className="p-3 border-t relative space-y-3">
                             <button type="button" onClick={() => handleDeleteItem(facility.id, 'facilities')} className="absolute top-2 right-2 text-red-500 hover:text-red-700 p-1" aria-label={`Delete ${facility.caption} image`}>&times;</button>
-                            <ImageUpload label="Facility Image" currentImageUrl={facility.imageUrl} onImageChange={(b64) => handleImageChange(b64, 'facilities', index)} />
+                            <ImageUpload 
+                                label="Facility Image" 
+                                currentImageUrl={facility.imageUrl} 
+                                onImageChange={(b64) => handleImageChange(b64, 'facilities', index)}
+                                aspect={3/2}
+                            />
                             <input type="text" placeholder="Caption" value={facility.caption} onChange={(e) => handleFacilityChange(index, 'caption', e.target.value)} className={inputClasses} />
                             <input type="text" placeholder="Alt Text" value={facility.altText} onChange={(e) => handleFacilityChange(index, 'altText', e.target.value)} className={inputClasses} />
                         </div>

@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { useContent } from '../../hooks/useContent';
 import type { Event } from '../../types';
@@ -57,7 +58,12 @@ const ManageEventsPage = () => {
                                 <label htmlFor={`event-desc-${index}`} className={labelClasses}>Description</label>
                                 <textarea id={`event-desc-${index}`} rows={3} value={event.description} onChange={(e) => handleEventChange(index, 'description', e.target.value)} className={inputClasses}></textarea>
                             </div>
-                             <MultiImageUpload label="Event Images" currentImageUrls={event.images} onImagesChange={(urls) => handleEventChange(index, 'images', urls)} />
+                             <MultiImageUpload 
+                                label="Event Images" 
+                                currentImageUrls={event.images} 
+                                onImagesChange={(urls) => handleEventChange(index, 'images', urls)}
+                                aspect={16/9}
+                            />
                         </div>
                     ))}
                      <button type="button" onClick={handleAddEvent} className="px-4 py-2 border border-dashed border-zinc-400 rounded-md">Add Event</button>

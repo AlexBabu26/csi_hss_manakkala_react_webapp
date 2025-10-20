@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { useContent } from '../../hooks/useContent';
 import type { HomePageContent } from '../../types';
@@ -55,7 +56,12 @@ const ManageHomePage = () => {
                 {/* Hero Section */}
                 <fieldset className="space-y-4 border p-4 rounded-md">
                     <legend className="text-xl font-semibold px-2">Hero Section</legend>
-                    <ImageUpload label="Hero Background Image" currentImageUrl={formData.hero.imageUrl} onImageChange={(b64) => handleImageChange(b64, 'hero')} />
+                    <ImageUpload 
+                        label="Hero Background Image" 
+                        currentImageUrl={formData.hero.imageUrl} 
+                        onImageChange={(b64) => handleImageChange(b64, 'hero')}
+                        aspect={16/9} 
+                    />
                     <div>
                         <label htmlFor="heading" className={labelClasses}>Heading</label>
                         <input type="text" id="heading" name="heading" value={formData.hero.heading} onChange={(e) => handleChange(e, 'hero')} className={inputClasses} />
@@ -91,7 +97,12 @@ const ManageHomePage = () => {
                         <div key={testimonial.id} className="p-3 border-t relative">
                              <h3 className="font-medium mb-2">Testimonial {index + 1}</h3>
                              <button type="button" onClick={() => handleDeleteTestimonial(testimonial.id)} className="absolute top-2 right-2 text-red-500 hover:text-red-700 p-1" aria-label={`Delete testimonial from ${testimonial.name}`}>&times;</button>
-                             <ImageUpload label="Author Image" currentImageUrl={testimonial.imageUrl} onImageChange={(b64) => handleImageChange(b64, 'testimonials', index)} />
+                             <ImageUpload 
+                                label="Author Image" 
+                                currentImageUrl={testimonial.imageUrl} 
+                                onImageChange={(b64) => handleImageChange(b64, 'testimonials', index)}
+                                aspect={1}
+                             />
                              <div>
                                 <label htmlFor={`testimonial-name-${index}`} className={labelClasses}>Name</label>
                                 <input type="text" id={`testimonial-name-${index}`} value={testimonial.name} onChange={(e) => handleChange(e, 'testimonials', index, 'name')} className={inputClasses} />

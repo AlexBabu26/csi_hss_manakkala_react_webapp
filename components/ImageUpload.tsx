@@ -1,13 +1,17 @@
+
 import React, { useState, useRef } from 'react';
+import ImageCropperModal from './ImageCropperModal';
 
 interface ImageUploadProps {
   label: string;
   currentImageUrl: string;
   onImageChange: (base64: string) => void;
+  aspect?: number;
 }
 
-const ImageUpload: React.FC<ImageUploadProps> = ({ label, currentImageUrl, onImageChange }) => {
+const ImageUpload: React.FC<ImageUploadProps> = ({ label, currentImageUrl, onImageChange, aspect }) => {
   const [preview, setPreview] = useState<string | null>(currentImageUrl);
+  const [imageToCrop, setImageToCrop] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -15,13 +19,27 @@ const ImageUpload: React.FC<ImageUploadProps> = ({ label, currentImageUrl, onIma
     if (file) {
       const reader = new FileReader();
       reader.onloadend = () => {
-        const base64String = reader.result as string;
-        setPreview(base64String);
-        onImageChange(base64String);
+        setImageToCrop(reader.result as string);
       };
       reader.readAsDataURL(file);
     }
   };
+
+  const handleCropComplete = (croppedImage: string) => {
+    setPreview(croppedImage);
+    onImageChange(croppedImage);
+    setImageToCrop(null);
+    if(fileInputRef.current) {
+        fileInputRef.current.value = "";
+    }
+  };
+  
+  const handleCloseCropper = () => {
+      setImageToCrop(null);
+      if(fileInputRef.current) {
+        fileInputRef.current.value = "";
+    }
+  }
 
   const handleButtonClick = () => {
     fileInputRef.current?.click();
@@ -53,6 +71,15 @@ const ImageUpload: React.FC<ImageUploadProps> = ({ label, currentImageUrl, onIma
           Change
         </button>
       </div>
+
+      {imageToCrop && (
+        <ImageCropperModal
+            src={imageToCrop}
+            aspect={aspect}
+            onClose={handleCloseCropper}
+            onCropComplete={handleCropComplete}
+        />
+      )}
     </div>
   );
 };

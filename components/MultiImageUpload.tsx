@@ -1,38 +1,74 @@
-import React, { useState, useRef } from 'react';
+
+import React, { useState, useRef, useEffect } from 'react';
 import Icon from './Icon';
+import ImageCropperModal from './ImageCropperModal';
 
 interface MultiImageUploadProps {
   label: string;
   currentImageUrls: string[];
   onImagesChange: (base64Urls: string[]) => void;
+  aspect?: number;
 }
 
-const MultiImageUpload: React.FC<MultiImageUploadProps> = ({ label, currentImageUrls, onImagesChange }) => {
+const MultiImageUpload: React.FC<MultiImageUploadProps> = ({ label, currentImageUrls, onImagesChange, aspect }) => {
   const [previews, setPreviews] = useState<string[]>(currentImageUrls);
   const fileInputRef = useRef<HTMLInputElement>(null);
+  
+  const [cropQueue, setCropQueue] = useState<string[]>([]);
+  const [currentCropImage, setCurrentCropImage] = useState<string | null>(null);
+  const [newlyCroppedImages, setNewlyCroppedImages] = useState<string[]>([]);
 
+  useEffect(() => {
+    setPreviews(currentImageUrls);
+  }, [currentImageUrls]);
+  
   const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const files = event.target.files;
-    if (files) {
-      const existingPreviews = [...previews];
+    if (files && files.length > 0) {
       const fileArray = Array.from(files);
-      let newPreviews: string[] = [];
-      
+      const dataUrls: string[] = [];
       let filesProcessed = 0;
+      
       fileArray.forEach(file => {
         const reader = new FileReader();
         reader.onloadend = () => {
-          newPreviews.push(reader.result as string);
+          dataUrls.push(reader.result as string);
           filesProcessed++;
           if (filesProcessed === fileArray.length) {
-            const allPreviews = [...existingPreviews, ...newPreviews];
-            setPreviews(allPreviews);
-            onImagesChange(allPreviews);
+            setNewlyCroppedImages([]);
+            setCropQueue(dataUrls);
+            setCurrentCropImage(dataUrls[0]);
           }
         };
         reader.readAsDataURL(file);
       });
     }
+  };
+
+  const handleCropComplete = (croppedImage: string) => {
+    const nextQueue = cropQueue.slice(1);
+    const allCropped = [...newlyCroppedImages, croppedImage];
+    setNewlyCroppedImages(allCropped);
+    
+    if (nextQueue.length > 0) {
+      setCropQueue(nextQueue);
+      setCurrentCropImage(nextQueue[0]);
+    } else {
+      // Last image cropped
+      const finalImages = [...previews, ...allCropped];
+      setPreviews(finalImages);
+      onImagesChange(finalImages);
+      resetCropperState();
+    }
+  };
+
+  const resetCropperState = () => {
+      setCurrentCropImage(null);
+      setCropQueue([]);
+      setNewlyCroppedImages([]);
+      if(fileInputRef.current) {
+        fileInputRef.current.value = "";
+      }
   };
 
   const handleDelete = (indexToDelete: number) => {
@@ -80,6 +116,14 @@ const MultiImageUpload: React.FC<MultiImageUploadProps> = ({ label, currentImage
             </button>
         </div>
       </div>
+       {currentCropImage && (
+        <ImageCropperModal
+            src={currentCropImage}
+            aspect={aspect}
+            onClose={resetCropperState}
+            onCropComplete={handleCropComplete}
+        />
+      )}
     </div>
   );
 };

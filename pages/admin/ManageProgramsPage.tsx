@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { useContent } from '../../hooks/useContent';
 import type { ProgramsPageContent, Program } from '../../types';
@@ -45,7 +46,12 @@ const ManageProgramsPage = () => {
             <form onSubmit={handleSubmit} className="space-y-8 bg-white dark:bg-zinc-800 p-6 rounded-lg shadow-md">
                  <fieldset className="space-y-4 border p-4 rounded-md">
                     <legend className="text-xl font-semibold px-2">General</legend>
-                    <ImageUpload label="Banner Image" currentImageUrl={formData.bannerImageUrl} onImageChange={(b64) => handleImageChange(b64, 'bannerImageUrl')} />
+                    <ImageUpload 
+                        label="Banner Image" 
+                        currentImageUrl={formData.bannerImageUrl} 
+                        onImageChange={(b64) => handleImageChange(b64, 'bannerImageUrl')}
+                        aspect={3/1}
+                    />
                 </fieldset>
 
                 {(Object.keys(formData.programs) as Array<keyof typeof formData.programs>).map(programKey => {
@@ -53,7 +59,12 @@ const ManageProgramsPage = () => {
                     return (
                         <fieldset key={program.id} className="space-y-4 border p-4 rounded-md">
                             <legend className="text-xl font-semibold px-2 capitalize">{programKey}</legend>
-                             <ImageUpload label="Program Image" currentImageUrl={program.imageUrl} onImageChange={(b64) => handleImageChange(b64, programKey)} />
+                             <ImageUpload 
+                                label="Program Image" 
+                                currentImageUrl={program.imageUrl} 
+                                onImageChange={(b64) => handleImageChange(b64, programKey)}
+                                aspect={3/2}
+                             />
                             <div>
                                 <label htmlFor={`${program.id}-title`} className={labelClasses}>Title</label>
                                 <input type="text" id={`${program.id}-title`} value={program.title} onChange={(e) => handleProgramChange(programKey, 'title', e.target.value)} className={inputClasses} />

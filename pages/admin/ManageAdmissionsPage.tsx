@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { useContent } from '../../hooks/useContent';
 import type { AdmissionsPageContent, FaqItem } from '../../types';
@@ -48,7 +49,12 @@ const ManageAdmissionsPage = () => {
                 
                 <fieldset className="space-y-4 border p-4 rounded-md">
                     <legend className="text-xl font-semibold px-2">General Content</legend>
-                    <ImageUpload label="Banner Image" currentImageUrl={formData.bannerImageUrl} onImageChange={handleImageChange} />
+                    <ImageUpload 
+                        label="Banner Image" 
+                        currentImageUrl={formData.bannerImageUrl} 
+                        onImageChange={handleImageChange}
+                        aspect={3/1}
+                    />
                     <div>
                         <label htmlFor="tuitionInfo" className={labelClasses}>Tuition & Financial Aid Info</label>
                         <textarea id="tuitionInfo" name="tuitionInfo" rows={3} value={formData.tuitionInfo} onChange={handleChange} className={inputClasses}></textarea>
