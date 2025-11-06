@@ -1,3 +1,4 @@
+
 import React from 'react';
 import { useAccessibility } from '../hooks/useAccessibility';
 
@@ -18,7 +19,7 @@ const AccessibilityStatementPage = () => {
                     <section aria-labelledby="commitment-heading">
                         <h2 id="commitment-heading" className="text-2xl font-bold text-primary-700 dark:text-hc-interactive mb-4">Our Commitment</h2>
                         <p>
-                            The Inclusive Learning Hub is committed to ensuring digital accessibility for people with disabilities. We are continually improving the user experience for everyone and applying the relevant accessibility standards.
+                            C.S.I. HSS For The Partially Hearing, Manakala is committed to ensuring digital accessibility for people with disabilities. We are continually improving the user experience for everyone and applying the relevant accessibility standards.
                         </p>
                     </section>
 
@@ -38,9 +39,9 @@ const AccessibilityStatementPage = () => {
                             We welcome your feedback on the accessibility of our website. Please let us know if you encounter accessibility barriers:
                         </p>
                         <ul className="list-disc list-inside mt-4 space-y-2">
-                            <li>Phone: <a href="tel:123-456-7890" className="underline hover:text-primary-600">(123) 456-7890</a></li>
-                            <li>E-mail: <a href="mailto:accessibility@inclusivehub.edu" className="underline hover:text-primary-600">accessibility@inclusivehub.edu</a></li>
-                            <li>Visitor Address: 123 Education Lane, Success City, ST 45678</li>
+                            <li>Phone: <a href="tel:04734230461" className="underline hover:text-primary-600">04734 230461</a></li>
+                            <li>E-mail: <a href="mailto:csihssphmanakala@gmail.com" className="underline hover:text-primary-600">csihssphmanakala@gmail.com</a></li>
+                            <li>Visitor Address: C.S.I. HSS for the partially Hearing, Manakala P.O, Adoor, Pathanamthitta (Dist), Kerala - 691551</li>
                         </ul>
                          <p className="mt-4">We try to respond to feedback within 5 business days.</p>
                     </section>

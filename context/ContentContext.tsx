@@ -1,3 +1,4 @@
+
 import React, { createContext, useState, useMemo, useCallback } from 'react';
 import type { 
     SiteContent, 
@@ -14,60 +15,62 @@ import type {
 const initialContent: SiteContent = {
   home: {
     hero: {
-      heading: "A Place Where Every Student Thrives",
-      subheading: "Inclusive Learning Hub provides a supportive and engaging environment tailored to meet the unique needs of every child.",
-      imageUrl: "https://placehold.co/1920x1080/468eef/ffffff?text=Inclusive+Classroom"
+      heading: "C.S.I. HSS For The Partially Hearing, Manakala",
+      subheading: "Established in 1981, we provide a supportive and engaging environment, empowering students with hearing impairments through quality education.",
+      imageUrl: "https://placehold.co/1920x1080/468eef/ffffff?text=C.S.I.+HSS+Manakala"
     },
     features: [
-      { id: '1', icon: 'AcademicCapIcon', title: 'Personalized Learning', description: 'Our curriculum is adapted to each student\'s learning style and pace.' },
-      { id: '2', icon: 'HeartIcon', title: 'Therapeutic Support', description: 'Integrated therapies to support emotional, social, and physical development.' },
-      { id: '3', icon: 'UserGroupIcon', title: 'Community Focused', description: 'We foster a strong sense of community among students, families, and staff.' }
+      { id: '1', icon: 'AcademicCapIcon', title: 'Total Communication', description: 'Our teaching-learning process uses the total communication method to ensure effective understanding and expression.' },
+      { id: '2', icon: 'HeartIcon', title: 'SCERT Certified Syllabus', description: 'We follow the same SCERT syllabus used by Government and Aided schools, ensuring a high standard of education.' },
+      { id: '3', icon: 'UserGroupIcon', title: 'Holistic Development', description: 'With separate hostels for boys and girls and a focus on extracurriculars, we ensure overall development and satisfaction in life.' }
     ],
-    testimonials: [
-      { id: '1', quote: "This school has been a game-changer for our son. The teachers are incredible and truly care.", name: 'Jane Doe', role: 'Parent', imageUrl: 'https://placehold.co/100x100/e0effe/333333?text=JD' },
-      { id: '2', quote: "I've never felt so supported. I'm learning so much and making great friends.", name: 'John Smith', role: 'Student', imageUrl: 'https://placehold.co/100x100/e0effe/333333?text=JS' }
-    ]
+    testimonials: []
   },
   about: {
     bannerImageUrl: "https://placehold.co/1200x400/468eef/FFFFFF?text=Our+Campus",
-    mission: "Our mission is to provide a high-quality, inclusive education that empowers students with diverse learning needs to achieve their full academic, social, and emotional potential in a safe and nurturing environment.",
-    philosophy: "We believe in a student-centered approach, where individualized instruction, therapeutic support, and a strong community partnership create the foundation for lifelong learning and success.",
+    mission: "To bring the marginalised community of the Hearing Impaired to the main stream of the society by equipping them with quality education and bringing out the talent inherent in them. We strive to develop individuality, creativity, authenticity and self respect, and to help students gain self confidence to face challenges and emerge successful.",
+    philosophy: "Inheriting a legacy from the CMS missionaries, we strive for the upliftment of the common people by providing them with better education. C.S.I. Madhya Kerala Diocese has special concern for the less privileged and the differently abled, taking the initiative in the education and rehabilitation of hearing impaired children in Kerala.",
     leadership: [
-      { id: '1', name: 'Dr. Evelyn Reed', title: 'Head of School', imageUrl: 'https://placehold.co/200x200/e0effe/333333?text=ER' },
-      { id: '2', name: 'Mr. David Chen', title: 'Director of Curriculum', imageUrl: 'https://placehold.co/200x200/e0effe/333333?text=DC' },
-      { id: '3', name: 'Ms. Maria Garcia', title: 'Head of Therapeutics', imageUrl: 'https://placehold.co/200x200/e0effe/333333?text=MG' }
+      { id: '1', name: 'Sri. Mathew Philip', title: 'First Headmaster (1981 - 1988)', imageUrl: 'https://placehold.co/200x200/e0effe/333333?text=MP' },
+      { id: '2', name: 'Sri. Thomas T Thomas', title: 'Headmaster (1988 - 1999)', imageUrl: 'https://placehold.co/200x200/e0effe/333333?text=TTT' },
+      { id: '3', name: 'Smt. Salikutty Cherian', title: 'Headmistress (1999 - 2014)', imageUrl: 'https://placehold.co/200x200/e0effe/333333?text=SC' },
+      { id: '4', name: 'Smt. Prema S Das', title: 'Headmistress (2014 - 2025)', imageUrl: 'https://placehold.co/200x200/e0effe/333333?text=PSD' }
     ],
     facilities: [
-        { id: '1', caption: 'Sensory Room', imageUrl: 'https://placehold.co/600x400/e0effe/333333?text=Sensory+Room', altText: 'A calm and colorful sensory room with soft lighting and various textures.' },
-        { id: '2', caption: 'Accessible Playground', imageUrl: 'https://placehold.co/600x400/e0effe/333333?text=Playground', altText: 'A modern, accessible playground with ramps and specialized equipment.' },
-        { id: '3', caption: 'Technology Lab', imageUrl: 'https://placehold.co/600x400/e0effe/333333?text=Tech+Lab', altText: 'A technology lab with adaptive keyboards and large monitors.' }
+        { id: '1', caption: 'Audiology and Speech Room', imageUrl: 'https://placehold.co/600x400/e0effe/333333?text=Speech+Room', altText: 'A well-equipped audiology and speech therapy room.' },
+        { id: '2', caption: 'Computer Lab', imageUrl: 'https://placehold.co/600x400/e0effe/333333?text=Computer+Lab', altText: 'A modern computer lab for students.' },
+        { id: '3', caption: 'Smart Class Rooms', imageUrl: 'https://placehold.co/600x400/e0effe/333333?text=Smart+Class', altText: 'A smart classroom with digital learning tools.' },
+        { id: '4', caption: 'Science Lab', imageUrl: 'https://placehold.co/600x400/e0effe/333333?text=Science+Lab', altText: 'A fully equipped science laboratory.' },
+        { id: '5', caption: 'Library', imageUrl: 'https://placehold.co/600x400/e0effe/333333?text=Library', altText: 'The school library with a wide collection of books.' },
+        { id: '6', caption: 'Kids Park & Playground', imageUrl: 'https://placehold.co/600x400/e0effe/333333?text=Playground', altText: 'A safe and fun playground for students.' }
     ]
   },
   programs: {
     bannerImageUrl: "https://placehold.co/1200x400/468eef/FFFFFF?text=Our+Programs",
     programs: {
-        academics: { id: 'p1', title: 'Core Academics', description: "Our academic program focuses on building foundational skills in literacy, math, and science through personalized, evidence-based instruction.", imageUrl: 'https://placehold.co/600x400/e0effe/333333?text=Academics', altText: 'A student working one-on-one with a teacher on a math problem.' },
-        therapeutics: { id: 'p2', title: 'Therapeutic Services', description: "We offer integrated speech, occupational, and physical therapy to support students' development within the school day.", imageUrl: 'https://placehold.co/600x400/e0effe/333333?text=Therapy', altText: 'A therapist working with a child on fine motor skills.' },
-        arts: { id: 'p3', title: 'Arts & Music', description: "Our arts and music programs encourage self-expression, creativity, and collaboration in a supportive setting.", imageUrl: 'https://placehold.co/600x400/e0effe/333333?text=Arts', altText: 'Students painting together in an art class.' },
-        skills: { id: 'p4', title: 'Life Skills', description: "We focus on developing practical life skills, including social skills, self-advocacy, and daily living activities, to foster independence.", imageUrl: 'https://placehold.co/600x400/e0effe/333333?text=Life+Skills', altText: 'Students learning to cook in a specialized kitchen classroom.' },
+        academics: { id: 'p1', title: 'Higher Secondary Courses', description: "We offer Science (English, Malayalam, Physics, Chemistry, Mathematics, Computer Science) and Commerce (English, Malayalam, Accountancy with Computerised Accounting, Business Studies, Economics, Computer Application) batches for higher secondary students.", imageUrl: 'https://placehold.co/600x400/e0effe/333333?text=Academics', altText: 'Students in a classroom learning science.' },
+        therapeutics: { id: 'p2', title: 'Speech Therapy', description: "The school provides dedicated speech therapy to improve the speech and language for children with communication disorders. Speech classes are also conducted during vacation periods.", imageUrl: 'https://placehold.co/600x400/e0effe/333333?text=Therapy', altText: 'A therapist working with a child on speech exercises.' },
+        arts: { id: 'p3', title: 'Extra-Curricular Activities', description: "We encourage students to showcase their talents in events like the State Special School Youth Festival and Work Experience Fairs, with activities like wood craft, paper craft, ornament making, and more.", imageUrl: 'https://placehold.co/600x400/e0effe/333333?text=Arts', altText: 'Students participating in a craft competition.' },
+        skills: { id: 'p4', title: 'Guidance & Counselling', description: "The Souhrida Club provides counselling for parents and students to cope with challenges. We also have a career guidance cell to make students aware of various job opportunities.", imageUrl: 'https://placehold.co/600x400/e0effe/333333?text=Counselling', altText: 'A counsellor talking with a student and parent.' },
     }
   },
   admissions: {
     bannerImageUrl: "https://placehold.co/1200x400/468eef/FFFFFF?text=Admissions",
-    tuitionInfo: "We are committed to making our school accessible to all families. We offer various tuition assistance programs and scholarships. Please contact our admissions office for more detailed information on tuition fees and financial aid options.",
+    tuitionInfo: "Our admission process is tailored to the needs of our students and does not follow the Single Window system. For details on admission procedures, tuition, and fees, please contact the school office.",
     faqs: [
-        { id: 'f1', question: 'What is the student-to-teacher ratio?', answer: 'Our average student-to-teacher ratio is 6:1 to ensure personalized attention and support for every student.' },
-        { id: 'f2', question: 'Do you offer after-school programs?', answer: 'Yes, we offer a variety of after-school clubs and activities, including art, music, and sports, designed to be inclusive and fun for all students.' }
+        { id: 'f1', question: 'When does admission for LKG to Class X begin?', answer: 'Admission to classes from LKG to X starts from the month of May.' },
+        { id: 'f2', question: 'When can we apply for Plus One (Higher Secondary)?', answer: 'Plus One admission starts soon after the publication of SSLC results. We offer both Science and Commerce streams.' },
+        { id: 'f3', question: 'What teaching method is used?', answer: 'The school uses the total communication method for the teaching-learning process to best suit the needs of our students.' }
     ]
   },
   contact: {
-    address: "123 Education Lane, Success City, ST 45678",
-    phone: "(123) 456-7890",
-    email: "contact@inclusivehub.edu"
+    address: "C.S.I. HSS for the partially Hearing, Manakala P.O, Adoor, Pathanamthitta (Dist), Kerala - 691551",
+    phone: "04734 230461, 9447158704 (Principal)",
+    email: "csihssphmanakala@gmail.com"
   },
   events: [
-      { id: 'e1', title: 'Annual Art Show', date: '2024-10-26', description: 'Join us to celebrate the amazing artwork created by our talented students throughout the year.', images: ['https://placehold.co/600x400?text=Art+Show+1', 'https://placehold.co/600x400?text=Art+Show+2'] },
-      { id: 'e2', title: 'Community Fun Day', date: '2024-09-15', description: 'A day of games, food, and fun for all our students and their families. A great way to connect with the community.', images: ['https://placehold.co/600x400?text=Fun+Day+1'] }
+      { id: 'e1', title: 'State Special School Youth Festival Champions!', date: '2024-11-20', description: 'Our students have once again won the overall championship and gold cup at the State Special School Youth festival, making it our 6th win!', images: ['https://placehold.co/600x400?text=Champions!', 'https://placehold.co/600x400?text=Youth+Festival'] },
+      { id: 'e2', title: 'Achievements at State Work Experience Fair', date: '2024-12-10', description: 'Students showcased amazing talents in wood craft, paper craft, ornament making and more, winning several prizes at the state level.', images: ['https://placehold.co/600x400?text=Work+Experience+Fair'] }
   ]
 };
 

@@ -1,3 +1,4 @@
+
 import React from 'react';
 import { useAccessibility } from '../hooks/useAccessibility';
 import { useContent } from '../hooks/useContent';
@@ -69,10 +70,10 @@ const ContactPage = () => {
                                 <p>Monday - Friday: 8:00 AM - 4:00 PM</p>
                             </div>
                             <div>
-                                <a href="https://maps.google.com" target="_blank" rel="noopener noreferrer" aria-label="View location on Google Maps (opens in a new tab)">
+                                <a href="https://www.google.com/maps/search/?api=1&query=CSI+Higher+Secondary+School+For+The+Hearing+Impaired,Manakala,Adoor" target="_blank" rel="noopener noreferrer" aria-label="View location on Google Maps (opens in a new tab)">
                                     <img 
                                         src="https://placehold.co/600x400/e0effe/333333?text=Find+Us+On+The+Map"
-                                        alt="A placeholder map showing the location of the Inclusive Learning Hub."
+                                        alt="A map showing the location of C.S.I. HSS For The Partially Hearing in Manakala."
                                         className="w-full h-auto rounded-lg shadow-md mt-4"
                                     />
                                 </a>

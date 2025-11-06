@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { useAccessibility } from '../hooks/useAccessibility';
 import { Link, useNavigate } from 'react-router-dom';
@@ -21,7 +22,7 @@ const LoginPage = () => {
         const password = formData.get('password') as string;
 
         // Demo credentials
-        if (email === 'admin@inclusivehub.edu' && password === 'password123') {
+        if (email === 'admin@csihssmanakala.edu' && password === 'password123') {
             login(email);
             navigate('/admin');
         } else {
@@ -78,7 +79,7 @@ const LoginPage = () => {
                                 )}
                                 <div>
                                     <label htmlFor="login-email" className="block text-sm font-medium text-zinc-700 dark:text-zinc-200">Email Address</label>
-                                    <input type="email" name="email" id="login-email" required className={inputClasses} autoComplete="email" defaultValue="admin@inclusivehub.edu" />
+                                    <input type="email" name="email" id="login-email" required className={inputClasses} autoComplete="email" defaultValue="admin@csihssmanakala.edu" />
                                 </div>
                                 <div>
                                     <label htmlFor="login-password" className="block text-sm font-medium text-zinc-700 dark:text-zinc-200">Password</label>

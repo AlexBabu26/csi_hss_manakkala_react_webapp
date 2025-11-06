@@ -22,26 +22,36 @@ const MultiImageUpload: React.FC<MultiImageUploadProps> = ({ label, currentImage
     setPreviews(currentImageUrls);
   }, [currentImageUrls]);
   
+  // Fix: Replaced Array.from().map() with a standard for loop to ensure correct
+  // type inference for `file` from the `FileList` object, which was causing a
+  // type error where `file` was inferred as `unknown`.
   const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const files = event.target.files;
     if (files && files.length > 0) {
-      const fileArray = Array.from(files);
-      const dataUrls: string[] = [];
-      let filesProcessed = 0;
-      
-      fileArray.forEach(file => {
-        const reader = new FileReader();
-        reader.onloadend = () => {
-          dataUrls.push(reader.result as string);
-          filesProcessed++;
-          if (filesProcessed === fileArray.length) {
-            setNewlyCroppedImages([]);
-            setCropQueue(dataUrls);
-            setCurrentCropImage(dataUrls[0]);
-          }
-        };
-        reader.readAsDataURL(file);
-      });
+      const filePromises: Promise<string>[] = [];
+      for (let i = 0; i < files.length; i++) {
+        const file = files.item(i);
+        if (file) {
+          filePromises.push(
+            new Promise<string>((resolve, reject) => {
+              const reader = new FileReader();
+              reader.onloadend = () => {
+                resolve(reader.result as string);
+              };
+              reader.onerror = reject;
+              reader.readAsDataURL(file);
+            }),
+          );
+        }
+      }
+
+      Promise.all(filePromises)
+        .then((dataUrls) => {
+          setNewlyCroppedImages([]);
+          setCropQueue(dataUrls);
+          setCurrentCropImage(dataUrls[0] || null);
+        })
+        .catch((error) => console.error('Error reading files:', error));
     }
   };
 

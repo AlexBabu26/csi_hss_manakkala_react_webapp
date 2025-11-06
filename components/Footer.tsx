@@ -1,3 +1,4 @@
+
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { useContent } from '../hooks/useContent';
@@ -12,8 +13,8 @@ const Footer = () => {
       <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
           <div>
-            <h3 className="text-lg font-semibold">Inclusive Learning Hub</h3>
-            <p className="mt-2 text-zinc-300 dark:text-zinc-200">Empowering every student to achieve their full potential.</p>
+            <h3 className="text-lg font-semibold">C.S.I. HSS For The Partially Hearing</h3>
+            <p className="mt-2 text-zinc-300 dark:text-zinc-200">"In Silence we soar, in learning we shine"</p>
           </div>
           <div>
             <h3 className="text-lg font-semibold">Quick Links</h3>
@@ -35,7 +36,7 @@ const Footer = () => {
           </div>
         </div>
         <div className="mt-8 border-t border-zinc-700 pt-8 flex flex-col md:flex-row justify-between items-center text-sm text-zinc-400 dark:text-zinc-300">
-          <p>&copy; {new Date().getFullYear()} Inclusive Learning Hub. All Rights Reserved.</p>
+          <p>&copy; {new Date().getFullYear()} C.S.I. HSS Manakala. All Rights Reserved.</p>
           <p className="mt-4 md:mt-0">
             <Link to="/accessibility" className={linkStyles}>Accessibility Statement</Link>
           </p>

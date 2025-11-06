@@ -40,6 +40,9 @@ const ManageProgramsPage = () => {
         setTimeout(() => setStatus(''), 3000);
     };
 
+    // Fix: Use a static array of keys to ensure type safety when mapping.
+    const programKeys: (keyof ProgramsPageContent['programs'])[] = ['academics', 'therapeutics', 'arts', 'skills'];
+
     return (
         <div className="animate-fadeIn">
             <h1 className="text-3xl font-bold text-zinc-900 dark:text-white mb-6">Manage Programs Page</h1>
@@ -54,7 +57,7 @@ const ManageProgramsPage = () => {
                     />
                 </fieldset>
 
-                {(Object.keys(formData.programs) as Array<keyof typeof formData.programs>).map(programKey => {
+                {programKeys.map(programKey => {
                     const program = formData.programs[programKey];
                     return (
                         <fieldset key={program.id} className="space-y-4 border p-4 rounded-md">
