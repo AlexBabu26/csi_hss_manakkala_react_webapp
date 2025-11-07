@@ -1,11 +1,11 @@
 
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import ImageCropperModal from './ImageCropperModal';
 
 interface ImageUploadProps {
   label: string;
   currentImageUrl: string;
-  onImageChange: (base64: string) => void;
+  onImageChange: (urlOrBase64: string) => void;
   aspect?: number;
 }
 
@@ -13,6 +13,15 @@ const ImageUpload: React.FC<ImageUploadProps> = ({ label, currentImageUrl, onIma
   const [preview, setPreview] = useState<string | null>(currentImageUrl);
   const [imageToCrop, setImageToCrop] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const [inputType, setInputType] = useState<'upload' | 'url'>('upload');
+  const [urlInput, setUrlInput] = useState(currentImageUrl?.startsWith('http') ? currentImageUrl : '');
+  
+  useEffect(() => {
+    setPreview(currentImageUrl);
+    if (currentImageUrl?.startsWith('http')) {
+      setUrlInput(currentImageUrl);
+    }
+  }, [currentImageUrl]);
 
   const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
@@ -41,9 +50,26 @@ const ImageUpload: React.FC<ImageUploadProps> = ({ label, currentImageUrl, onIma
     }
   }
 
-  const handleButtonClick = () => {
+  const handleUploadButtonClick = () => {
     fileInputRef.current?.click();
   };
+
+  const handleUrlChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+      setUrlInput(e.target.value);
+  }
+
+  const handleSetUrl = () => {
+      if (urlInput) {
+          // A simple check to see if it looks like a URL.
+          // In a real app, you might want more robust validation or an image pre-loader.
+          setPreview(urlInput);
+          onImageChange(urlInput);
+      }
+  }
+
+  const activeBtnClasses = "bg-primary-100 dark:bg-primary-800 text-primary-700 dark:text-white";
+  const inactiveBtnClasses = "bg-white dark:bg-zinc-800 hover:bg-zinc-50 dark:hover:bg-zinc-700";
+  const btnBaseClasses = "px-3 py-1 border border-zinc-300 dark:border-zinc-600 text-sm rounded-md focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500";
 
   return (
     <div>
@@ -56,20 +82,50 @@ const ImageUpload: React.FC<ImageUploadProps> = ({ label, currentImageUrl, onIma
             No Image
           </div>
         )}
-        <input
-          type="file"
-          accept="image/*"
-          ref={fileInputRef}
-          onChange={handleFileChange}
-          className="hidden"
-        />
-        <button
-          type="button"
-          onClick={handleButtonClick}
-          className="px-4 py-2 border border-zinc-300 dark:border-zinc-600 rounded-md shadow-sm text-sm font-medium text-zinc-700 dark:text-zinc-200 bg-white dark:bg-zinc-800 hover:bg-zinc-50 dark:hover:bg-zinc-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500"
-        >
-          Change
-        </button>
+        <div className="flex flex-col space-y-2 items-start">
+            <div className="flex space-x-1">
+                 <button type="button" onClick={() => setInputType('upload')} className={`${btnBaseClasses} ${inputType === 'upload' ? activeBtnClasses : inactiveBtnClasses}`}>Upload</button>
+                 <button type="button" onClick={() => setInputType('url')} className={`${btnBaseClasses} ${inputType === 'url' ? activeBtnClasses : inactiveBtnClasses}`}>URL</button>
+            </div>
+
+            {inputType === 'upload' && (
+                <div>
+                    <input
+                      type="file"
+                      accept="image/*"
+                      ref={fileInputRef}
+                      onChange={handleFileChange}
+                      className="hidden"
+                    />
+                    <button
+                      type="button"
+                      onClick={handleUploadButtonClick}
+                      className="px-4 py-2 border border-zinc-300 dark:border-zinc-600 rounded-md shadow-sm text-sm font-medium text-zinc-700 dark:text-zinc-200 bg-white dark:bg-zinc-800 hover:bg-zinc-50 dark:hover:bg-zinc-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500"
+                    >
+                      Change Image
+                    </button>
+                </div>
+            )}
+            
+            {inputType === 'url' && (
+                <div className="flex items-center space-x-2">
+                    <input 
+                        type="url" 
+                        placeholder="https://example.com/image.jpg"
+                        value={urlInput}
+                        onChange={handleUrlChange}
+                        className="block w-full min-w-[200px] px-3 py-2 bg-white dark:bg-zinc-700 border border-zinc-300 dark:border-zinc-600 rounded-md shadow-sm text-sm focus:outline-none focus:ring-primary-500"
+                    />
+                    <button 
+                        type="button"
+                        onClick={handleSetUrl}
+                        className="px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-primary-600 hover:bg-primary-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500"
+                    >
+                        Set
+                    </button>
+                </div>
+            )}
+        </div>
       </div>
 
       {imageToCrop && (
