@@ -33,11 +33,16 @@ const ManageProgramsPage = () => {
         }
     };
 
-    const handleSubmit = (e: React.FormEvent) => {
+    const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
-        updateProgramsPage(formData);
-        setStatus('Programs page content updated successfully!');
-        setTimeout(() => setStatus(''), 3000);
+        try {
+            await updateProgramsPage(formData);
+            setStatus('Programs page content updated successfully!');
+            setTimeout(() => setStatus(''), 3000);
+        } catch (error) {
+            setStatus('Failed to update. Please try again.');
+            setTimeout(() => setStatus(''), 3000);
+        }
     };
 
     // Fix: Use a static array of keys to ensure type safety when mapping.

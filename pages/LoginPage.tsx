@@ -14,19 +14,19 @@ const LoginPage = () => {
 
     const inputClasses = "mt-1 block w-full px-3 py-2 bg-white dark:bg-zinc-800 border border-zinc-300 dark:border-zinc-600 rounded-md shadow-sm focus:outline-none focus:ring-primary-500 focus:border-primary-500 dark:focus:ring-hc-interactive dark:focus:border-hc-interactive";
 
-    const handleLoginSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+    const handleLoginSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
         setError(null);
         const formData = new FormData(e.currentTarget);
         const email = formData.get('email') as string;
         const password = formData.get('password') as string;
 
-        // Demo credentials
-        if (email === 'admin@csihssmanakala.edu' && password === 'password123') {
-            login(email);
+        const result = await login(email, password);
+        
+        if (result.success) {
             navigate('/admin');
         } else {
-            setError('Invalid email or password. Please try again.');
+            setError(result.error || 'Invalid email or password. Please try again.');
         }
     };
 
@@ -79,11 +79,11 @@ const LoginPage = () => {
                                 )}
                                 <div>
                                     <label htmlFor="login-email" className="block text-sm font-medium text-zinc-700 dark:text-zinc-200">Email Address</label>
-                                    <input type="email" name="email" id="login-email" required className={inputClasses} autoComplete="email" defaultValue="admin@csihssmanakala.edu" />
+                                    <input type="email" name="email" id="login-email" required className={inputClasses} autoComplete="email" placeholder="admin@csihssmanakala.edu" />
                                 </div>
                                 <div>
                                     <label htmlFor="login-password" className="block text-sm font-medium text-zinc-700 dark:text-zinc-200">Password</label>
-                                    <input type="password" name="password" id="login-password" required className={inputClasses} autoComplete="current-password" defaultValue="password123" />
+                                    <input type="password" name="password" id="login-password" required className={inputClasses} autoComplete="current-password" placeholder="Enter your password" />
                                 </div>
                                 <div className="text-right">
                                     <Link to="#" className="text-sm text-primary-600 hover:text-primary-500 dark:text-primary-400 dark:hover:text-primary-300">Forgot password?</Link>

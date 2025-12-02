@@ -14,11 +14,16 @@ const ManageContactPage = () => {
         setFormData(prev => ({ ...prev, [e.target.name]: e.target.value }));
     };
 
-    const handleSubmit = (e: React.FormEvent) => {
+    const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
-        updateContactPage(formData);
-        setStatus('Contact info updated successfully!');
-        setTimeout(() => setStatus(''), 3000);
+        try {
+            await updateContactPage(formData);
+            setStatus('Contact info updated successfully!');
+            setTimeout(() => setStatus(''), 3000);
+        } catch (error) {
+            setStatus('Failed to update. Please try again.');
+            setTimeout(() => setStatus(''), 3000);
+        }
     };
 
     return (

@@ -3,6 +3,7 @@ import React, { useState } from 'react';
 import { useContent } from '../../hooks/useContent';
 import type { AboutPageContent, Leadership, Facility } from '../../types';
 import ImageUpload from '../../components/ImageUpload';
+import DraggableList from '../../components/DraggableList';
 
 const inputClasses = "mt-1 block w-full px-3 py-2 bg-white dark:bg-zinc-700 border border-zinc-300 dark:border-zinc-600 rounded-md shadow-sm focus:outline-none focus:ring-primary-500 focus:border-primary-500";
 const labelClasses = "block text-sm font-medium text-zinc-700 dark:text-zinc-200";
@@ -53,11 +54,24 @@ const ManageAboutPage = () => {
         setFormData(prev => ({ ...prev, [section]: items }));
     };
 
-    const handleSubmit = (e: React.FormEvent) => {
+    const handleLeadershipReorder = (reorderedItems: Leadership[]) => {
+        setFormData(prev => ({ ...prev, leadership: reorderedItems }));
+    };
+
+    const handleFacilitiesReorder = (reorderedItems: Facility[]) => {
+        setFormData(prev => ({ ...prev, facilities: reorderedItems }));
+    };
+
+    const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
-        updateAboutPage(formData);
-        setStatus('About page content updated successfully!');
-        setTimeout(() => setStatus(''), 3000);
+        try {
+            await updateAboutPage(formData);
+            setStatus('About page content updated successfully!');
+            setTimeout(() => setStatus(''), 3000);
+        } catch (error) {
+            setStatus('Failed to update. Please try again.');
+            setTimeout(() => setStatus(''), 3000);
+        }
     };
 
     return (
@@ -85,38 +99,110 @@ const ManageAboutPage = () => {
 
                 <fieldset className="space-y-4 border p-4 rounded-md">
                     <legend className="text-xl font-semibold px-2">Leadership Team</legend>
-                    {formData.leadership.map((person, index) => (
-                        <div key={person.id} className="p-3 border-t relative space-y-3">
-                            <button type="button" onClick={() => handleDeleteItem(person.id, 'leadership')} className="absolute top-2 right-2 text-red-500 hover:text-red-700 p-1" aria-label={`Delete ${person.name}`}>&times;</button>
-                            <ImageUpload 
-                                label="Profile Image" 
-                                currentImageUrl={person.imageUrl} 
-                                onImageChange={(b64) => handleImageChange(b64, 'leadership', index)}
-                                aspect={1}
-                            />
-                            <input type="text" placeholder="Name" value={person.name} onChange={(e) => handleLeadershipChange(index, 'name', e.target.value)} className={inputClasses} />
-                            <input type="text" placeholder="Title" value={person.title} onChange={(e) => handleLeadershipChange(index, 'title', e.target.value)} className={inputClasses} />
-                        </div>
-                    ))}
-                    <button type="button" onClick={() => handleAddItem('leadership')} className="px-4 py-2 border border-dashed border-zinc-400 rounded-md">Add Leadership Member</button>
+                    <div className="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-md p-3 mb-4">
+                        <p className="text-sm text-blue-800 dark:text-blue-200 flex items-center gap-2">
+                            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                            </svg>
+                            <span className="font-medium">Drag and drop items to reorder how they appear on the website</span>
+                        </p>
+                    </div>
+                    <DraggableList
+                        items={formData.leadership}
+                        onReorder={handleLeadershipReorder}
+                        dragHandleLabel="Drag to reorder leadership members"
+                        renderItem={(person, index) => (
+                            <div className="space-y-3">
+                                <button 
+                                    type="button" 
+                                    onClick={() => handleDeleteItem(person.id, 'leadership')} 
+                                    className="absolute top-2 right-12 text-red-500 hover:text-red-700 bg-white dark:bg-zinc-700 rounded-full w-8 h-8 flex items-center justify-center shadow-md hover:shadow-lg transition-all"
+                                    aria-label={`Delete ${person.name}`}
+                                >
+                                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                                    </svg>
+                                </button>
+                                <ImageUpload 
+                                    label="Profile Image" 
+                                    currentImageUrl={person.imageUrl} 
+                                    onImageChange={(b64) => handleImageChange(b64, 'leadership', index)}
+                                    aspect={1}
+                                />
+                                <input 
+                                    type="text" 
+                                    placeholder="Name" 
+                                    value={person.name} 
+                                    onChange={(e) => handleLeadershipChange(index, 'name', e.target.value)} 
+                                    className={inputClasses} 
+                                />
+                                <input 
+                                    type="text" 
+                                    placeholder="Title" 
+                                    value={person.title} 
+                                    onChange={(e) => handleLeadershipChange(index, 'title', e.target.value)} 
+                                    className={inputClasses} 
+                                />
+                            </div>
+                        )}
+                    />
+                    <button type="button" onClick={() => handleAddItem('leadership')} className="w-full px-4 py-3 border-2 border-dashed border-primary-300 dark:border-primary-700 rounded-md hover:border-primary-500 hover:bg-primary-50 dark:hover:bg-primary-900/20 transition-colors text-primary-600 dark:text-primary-400 font-medium">
+                        + Add Leadership Member
+                    </button>
                 </fieldset>
 
                 <fieldset className="space-y-4 border p-4 rounded-md">
                     <legend className="text-xl font-semibold px-2">Facilities</legend>
-                    {formData.facilities.map((facility, index) => (
-                        <div key={facility.id} className="p-3 border-t relative space-y-3">
-                            <button type="button" onClick={() => handleDeleteItem(facility.id, 'facilities')} className="absolute top-2 right-2 text-red-500 hover:text-red-700 p-1" aria-label={`Delete ${facility.caption} image`}>&times;</button>
-                            <ImageUpload 
-                                label="Facility Image" 
-                                currentImageUrl={facility.imageUrl} 
-                                onImageChange={(b64) => handleImageChange(b64, 'facilities', index)}
-                                aspect={3/2}
-                            />
-                            <input type="text" placeholder="Caption" value={facility.caption} onChange={(e) => handleFacilityChange(index, 'caption', e.target.value)} className={inputClasses} />
-                            <input type="text" placeholder="Alt Text" value={facility.altText} onChange={(e) => handleFacilityChange(index, 'altText', e.target.value)} className={inputClasses} />
-                        </div>
-                    ))}
-                    <button type="button" onClick={() => handleAddItem('facilities')} className="px-4 py-2 border border-dashed border-zinc-400 rounded-md">Add Facility Image</button>
+                    <div className="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-md p-3 mb-4">
+                        <p className="text-sm text-blue-800 dark:text-blue-200 flex items-center gap-2">
+                            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                            </svg>
+                            <span className="font-medium">Drag and drop items to reorder how they appear on the website</span>
+                        </p>
+                    </div>
+                    <DraggableList
+                        items={formData.facilities}
+                        onReorder={handleFacilitiesReorder}
+                        dragHandleLabel="Drag to reorder facilities"
+                        renderItem={(facility, index) => (
+                            <div className="space-y-3">
+                                <button 
+                                    type="button" 
+                                    onClick={() => handleDeleteItem(facility.id, 'facilities')} 
+                                    className="absolute top-2 right-12 text-red-500 hover:text-red-700 bg-white dark:bg-zinc-700 rounded-full w-8 h-8 flex items-center justify-center shadow-md hover:shadow-lg transition-all"
+                                    aria-label={`Delete ${facility.caption} image`}
+                                >
+                                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                                    </svg>
+                                </button>
+                                <ImageUpload 
+                                    label="Facility Image" 
+                                    currentImageUrl={facility.imageUrl} 
+                                    onImageChange={(b64) => handleImageChange(b64, 'facilities', index)}
+                                    aspect={3/2}
+                                />
+                                <input 
+                                    type="text" 
+                                    placeholder="Caption" 
+                                    value={facility.caption} 
+                                    onChange={(e) => handleFacilityChange(index, 'caption', e.target.value)} 
+                                    className={inputClasses} 
+                                />
+                                <input 
+                                    type="text" 
+                                    placeholder="Alt Text" 
+                                    value={facility.altText} 
+                                    onChange={(e) => handleFacilityChange(index, 'altText', e.target.value)} 
+                                    className={inputClasses} 
+                                />
+                            </div>
+                        )}
+                    />
+                    <button type="button" onClick={() => handleAddItem('facilities')} className="w-full px-4 py-3 border-2 border-dashed border-primary-300 dark:border-primary-700 rounded-md hover:border-primary-500 hover:bg-primary-50 dark:hover:bg-primary-900/20 transition-colors text-primary-600 dark:text-primary-400 font-medium">
+                        + Add Facility Image
+                    </button>
                 </fieldset>
 
                 <div>

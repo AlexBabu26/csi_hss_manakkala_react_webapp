@@ -4,6 +4,8 @@ import { useAccessibility } from '../hooks/useAccessibility';
 import { useContent } from '../hooks/useContent';
 import Icon from '../components/Icon';
 import ImageSlider from '../components/ImageSlider';
+import OptimizedImage from '../components/OptimizedImage';
+import { uploadAPI } from '../lib/api';
 
 const Feature: React.FC<{ icon: string; title: string; description: string }> = ({ icon, title, description }) => {
     const getIcon = () => {
@@ -29,26 +31,41 @@ const Feature: React.FC<{ icon: string; title: string; description: string }> = 
     );
 };
 
-const Testimonial: React.FC<{ quote: string; name: string; role: string; imageUrl: string }> = ({ quote, name, role, imageUrl }) => (
-    <div className="bg-primary-50 dark:bg-zinc-800 p-8 rounded-lg shadow-lg text-center">
-        <img src={imageUrl} alt={`Portrait of ${name}`} className="w-24 h-24 rounded-full mx-auto mb-4 border-4 border-white dark:border-zinc-700" />
-        <blockquote className="text-lg italic text-zinc-700 dark:text-zinc-200">"{quote}"</blockquote>
-        <cite className="block mt-4 not-italic">
-            <span className="font-bold text-zinc-900 dark:text-white">{name}</span>
-            <br />
-            <span className="text-primary-700 dark:text-hc-interactive">{role}</span>
-        </cite>
-    </div>
-);
+const Testimonial: React.FC<{ quote: string; name: string; role: string; imageUrl: string }> = ({ quote, name, role, imageUrl }) => {
+    const proxiedImageUrl = uploadAPI.getProxiedImageUrl(imageUrl);
+    return (
+        <div className="bg-primary-50 dark:bg-zinc-800 p-8 rounded-lg shadow-lg text-center">
+            <div className="w-24 h-24 rounded-full mx-auto mb-4 border-4 border-white dark:border-zinc-700 overflow-hidden">
+                <OptimizedImage 
+                    src={proxiedImageUrl} 
+                    alt={`Portrait of ${name}`} 
+                    className="w-full h-full object-cover"
+                />
+            </div>
+            <blockquote className="text-lg italic text-zinc-700 dark:text-zinc-200">"{quote}"</blockquote>
+            <cite className="block mt-4 not-italic">
+                <span className="font-bold text-zinc-900 dark:text-white">{name}</span>
+                <br />
+                <span className="text-primary-700 dark:text-hc-interactive">{role}</span>
+            </cite>
+        </div>
+    );
+};
 
 const EventCard: React.FC<{ event: import('../types').Event }> = ({ event }) => {
   const { preferences } = useAccessibility();
   const reducedMotionClass = preferences.motion === 'reduced' ? '' : 'transition-transform duration-300 transform hover:scale-105';
   
+  // Get proxied image URLs for secure access
+  const proxiedImages = event.images.map(img => ({
+    src: uploadAPI.getProxiedImageUrl(img),
+    alt: `Image for ${event.title}`
+  }));
+  
   return (
     <div className={`bg-white dark:bg-zinc-800 rounded-lg shadow-lg overflow-hidden ${reducedMotionClass}`}>
       <div className="h-56">
-        <ImageSlider images={event.images.map(img => ({ src: img, alt: `Image for ${event.title}`}))} />
+        <ImageSlider images={proxiedImages} />
       </div>
       <div className="p-6">
         <p className="text-sm font-semibold text-primary-600 dark:text-primary-400">{new Date(event.date).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })}</p>
@@ -66,15 +83,39 @@ const HomePage = () => {
     const { events } = content;
     const fadeInClass = preferences.motion === 'reduced' ? '' : 'animate-fadeIn';
     
+    // Get proxied image URL for secure access
+    const heroImageUrl = uploadAPI.getProxiedImageUrl(hero.imageUrl);
+    
     return (
         <div className={fadeInClass}>
             {/* Hero Section */}
-            <section className="relative bg-primary-700 text-white h-[60vh] min-h-[400px] flex items-center justify-center text-center">
-                <img src={hero.imageUrl} alt="A diverse group of students working together in a bright classroom" className="absolute inset-0 w-full h-full object-cover opacity-30" />
-                <div className="relative z-10 p-4">
-                    <h1 className="text-4xl md:text-6xl font-extrabold drop-shadow-lg">{hero.heading}</h1>
-                    <p className="mt-4 text-lg md:text-2xl max-w-3xl mx-auto drop-shadow-md">{hero.subheading}</p>
-                    <Link to="/admissions" className="mt-8 inline-block bg-white dark:bg-hc-interactive text-primary-700 dark:text-hc-bg font-bold py-3 px-8 rounded-full text-lg hover:bg-zinc-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-primary-700 focus:ring-white">
+            <section className="relative bg-primary-700 text-white min-h-[500px] md:min-h-[600px] flex items-center justify-center overflow-hidden">
+                {/* Background Image */}
+                <div className="absolute inset-0 w-full h-full">
+                    <OptimizedImage
+                        src={heroImageUrl} 
+                        alt="School campus background" 
+                        className="w-full h-full object-cover"
+                        loading="eager"
+                        style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%' }}
+                    />
+                </div>
+                
+                {/* Gradient Overlay for better text readability */}
+                <div className="absolute inset-0 bg-gradient-to-b from-primary-900/70 via-primary-800/60 to-primary-900/80"></div>
+                
+                {/* Content */}
+                <div className="relative z-20 px-4 py-16 md:py-20 w-full max-w-6xl mx-auto text-center">
+                    <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-extrabold drop-shadow-2xl mb-6 leading-tight px-4">
+                        {hero.heading}
+                    </h1>
+                    <p className="text-base sm:text-lg md:text-xl lg:text-2xl max-w-4xl mx-auto drop-shadow-lg mb-8 leading-relaxed px-4">
+                        {hero.subheading}
+                    </p>
+                    <Link 
+                        to="/admissions" 
+                        className="inline-block bg-white dark:bg-hc-interactive text-primary-700 dark:text-hc-bg font-bold py-3 px-8 rounded-full text-base md:text-lg hover:bg-zinc-200 hover:scale-105 focus:outline-none focus:ring-4 focus:ring-white focus:ring-offset-4 focus:ring-offset-primary-700 transition-all duration-200 shadow-xl"
+                    >
                         Learn More
                     </Link>
                 </div>

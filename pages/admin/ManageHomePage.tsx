@@ -42,11 +42,16 @@ const ManageHomePage = () => {
         setFormData(prev => ({ ...prev, testimonials: prev.testimonials.filter(t => t.id !== id) }));
     };
 
-    const handleSubmit = (e: React.FormEvent) => {
+    const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
-        updateHomePage(formData);
-        setStatus('Homepage content updated successfully!');
-        setTimeout(() => setStatus(''), 3000);
+        try {
+            await updateHomePage(formData);
+            setStatus('Homepage content updated successfully!');
+            setTimeout(() => setStatus(''), 3000);
+        } catch (error) {
+            setStatus('Failed to update. Please try again.');
+            setTimeout(() => setStatus(''), 3000);
+        }
     };
 
     return (

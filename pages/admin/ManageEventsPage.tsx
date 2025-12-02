@@ -28,11 +28,16 @@ const ManageEventsPage = () => {
         setEvents(prev => prev.filter(event => event.id !== id));
     };
 
-    const handleSubmit = (e: React.FormEvent) => {
+    const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
-        updateEvents(events);
-        setStatus('Events updated successfully!');
-        setTimeout(() => setStatus(''), 3000);
+        try {
+            await updateEvents(events);
+            setStatus('Events updated successfully!');
+            setTimeout(() => setStatus(''), 3000);
+        } catch (error) {
+            setStatus('Failed to update. Please try again.');
+            setTimeout(() => setStatus(''), 3000);
+        }
     };
 
     return (

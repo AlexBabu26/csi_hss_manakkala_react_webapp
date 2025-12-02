@@ -1,5 +1,5 @@
 
-import React, { createContext, useState, useMemo, useCallback } from 'react';
+import React, { createContext, useState, useMemo, useCallback, useEffect } from 'react';
 import type { 
     SiteContent, 
     ContentContextType,
@@ -10,8 +10,9 @@ import type {
     ContactPageContent,
     Event
 } from '../types';
+import { contentAPI, eventsAPI } from '../lib/api';
 
-// Initial data for the website
+// Initial data for the website (fallback if API fails)
 const initialContent: SiteContent = {
   home: {
     hero: {
@@ -78,30 +79,136 @@ export const ContentContext = createContext<ContentContextType | undefined>(unde
 
 export const ContentProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
     const [content, setContent] = useState<SiteContent>(initialContent);
+    const [loading, setLoading] = useState(true);
 
-    const updateHomePage = useCallback((data: HomePageContent) => {
-        setContent(prev => ({ ...prev, home: data }));
+    // Fetch all content from API on mount
+    useEffect(() => {
+        let isMounted = true; // Prevent double fetch in StrictMode
+        
+        const fetchContent = async () => {
+            try {
+                const [contentData, eventsData] = await Promise.all([
+                    contentAPI.getAll(),
+                    eventsAPI.getAll(),
+                ]);
+                
+                if (isMounted) {
+                    setContent({
+                        home: contentData.home || initialContent.home,
+                        about: contentData.about || initialContent.about,
+                        programs: contentData.programs || initialContent.programs,
+                        admissions: contentData.admissions || initialContent.admissions,
+                        contact: contentData.contact || initialContent.contact,
+                        events: eventsData || initialContent.events,
+                    });
+                }
+            } catch (error) {
+                console.error('Failed to fetch content:', error);
+                // Use initial content as fallback
+            } finally {
+                if (isMounted) {
+                    setLoading(false);
+                }
+            }
+        };
+        
+        fetchContent();
+        
+        return () => {
+            isMounted = false; // Cleanup flag
+        };
     }, []);
 
-    const updateAboutPage = useCallback((data: AboutPageContent) => {
-        setContent(prev => ({ ...prev, about: data }));
+    const updateHomePage = useCallback(async (data: HomePageContent) => {
+        try {
+            await contentAPI.update('home', data);
+            setContent(prev => ({ ...prev, home: data }));
+        } catch (error) {
+            console.error('Failed to update home page:', error);
+            throw error;
+        }
     }, []);
 
-    const updateProgramsPage = useCallback((data: ProgramsPageContent) => {
-        setContent(prev => ({ ...prev, programs: data }));
+    const updateAboutPage = useCallback(async (data: AboutPageContent) => {
+        try {
+            await contentAPI.update('about', data);
+            setContent(prev => ({ ...prev, about: data }));
+        } catch (error) {
+            console.error('Failed to update about page:', error);
+            throw error;
+        }
     }, []);
 
-    const updateAdmissionsPage = useCallback((data: AdmissionsPageContent) => {
-        setContent(prev => ({ ...prev, admissions: data }));
+    const updateProgramsPage = useCallback(async (data: ProgramsPageContent) => {
+        try {
+            await contentAPI.update('programs', data);
+            setContent(prev => ({ ...prev, programs: data }));
+        } catch (error) {
+            console.error('Failed to update programs page:', error);
+            throw error;
+        }
     }, []);
 
-    const updateContactPage = useCallback((data: ContactPageContent) => {
-        setContent(prev => ({ ...prev, contact: data }));
+    const updateAdmissionsPage = useCallback(async (data: AdmissionsPageContent) => {
+        try {
+            await contentAPI.update('admissions', data);
+            setContent(prev => ({ ...prev, admissions: data }));
+        } catch (error) {
+            console.error('Failed to update admissions page:', error);
+            throw error;
+        }
+    }, []);
+
+    const updateContactPage = useCallback(async (data: ContactPageContent) => {
+        try {
+            await contentAPI.update('contact', data);
+            setContent(prev => ({ ...prev, contact: data }));
+        } catch (error) {
+            console.error('Failed to update contact page:', error);
+            throw error;
+        }
     }, []);
     
-    const updateEvents = useCallback((data: Event[]) => {
-        setContent(prev => ({ ...prev, events: data }));
-    }, []);
+    const updateEvents = useCallback(async (data: Event[]) => {
+        try {
+            // Update all events by syncing with the server
+            // Delete removed events, update existing, create new ones
+            const currentEventIds = content.events.map(e => e.id);
+            const newEventIds = data.map(e => e.id);
+            
+            // Delete events that are no longer in the list
+            const deletedIds = currentEventIds.filter(id => !newEventIds.includes(id));
+            for (const id of deletedIds) {
+                await eventsAPI.delete(id);
+            }
+            
+            // Update or create events
+            for (const event of data) {
+                if (currentEventIds.includes(event.id)) {
+                    // Update existing event
+                    await eventsAPI.update(event.id, {
+                        title: event.title,
+                        event_date: event.date,
+                        description: event.description,
+                        images: event.images,
+                    });
+                } else {
+                    // Create new event
+                    await eventsAPI.create({
+                        title: event.title,
+                        event_date: event.date,
+                        description: event.description,
+                        images: event.images,
+                    });
+                }
+            }
+            
+            setContent(prev => ({ ...prev, events: data }));
+        } catch (error) {
+            console.error('Failed to update events:', error);
+            throw error;
+        }
+    }, [content.events]);
 
     const value = useMemo(() => ({
         content,
@@ -110,8 +217,9 @@ export const ContentProvider: React.FC<{ children: React.ReactNode }> = ({ child
         updateProgramsPage,
         updateAdmissionsPage,
         updateContactPage,
-        updateEvents
-    }), [content, updateHomePage, updateAboutPage, updateProgramsPage, updateAdmissionsPage, updateContactPage, updateEvents]);
+        updateEvents,
+        loading,
+    }), [content, updateHomePage, updateAboutPage, updateProgramsPage, updateAdmissionsPage, updateContactPage, updateEvents, loading]);
 
     return (
         <ContentContext.Provider value={value}>

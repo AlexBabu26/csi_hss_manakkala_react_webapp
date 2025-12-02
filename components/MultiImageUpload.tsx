@@ -58,9 +58,24 @@ const MultiImageUpload: React.FC<MultiImageUploadProps> = ({ label, currentImage
     }
   };
 
-  const handleCropComplete = (croppedImage: string) => {
+  const handleCropComplete = async (croppedImage: string) => {
     const nextQueue = cropQueue.slice(1);
-    const allCropped = [...newlyCroppedImages, croppedImage];
+    
+    // Try to upload to Backblaze B2
+    let imageUrl = croppedImage;
+    try {
+      const { uploadAPI } = await import('../lib/api');
+      const result = await uploadAPI.uploadImage(croppedImage);
+      
+      if (!result.fallback) {
+        imageUrl = result.url;
+        console.log('Image uploaded to Backblaze B2:', imageUrl);
+      }
+    } catch (error) {
+      console.error('Upload failed, using base64:', error);
+    }
+    
+    const allCropped = [...newlyCroppedImages, imageUrl];
     setNewlyCroppedImages(allCropped);
     
     if (nextQueue.length > 0) {

@@ -35,11 +35,16 @@ const ManageAdmissionsPage = () => {
         setFormData(prev => ({ ...prev, bannerImageUrl: base64 }));
     };
 
-    const handleSubmit = (e: React.FormEvent) => {
+    const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
-        updateAdmissionsPage(formData);
-        setStatus('Admissions page content updated successfully!');
-        setTimeout(() => setStatus(''), 3000);
+        try {
+            await updateAdmissionsPage(formData);
+            setStatus('Admissions page content updated successfully!');
+            setTimeout(() => setStatus(''), 3000);
+        } catch (error) {
+            setStatus('Failed to update. Please try again.');
+            setTimeout(() => setStatus(''), 3000);
+        }
     };
 
     return (

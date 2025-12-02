@@ -27,8 +27,9 @@ export interface User {
 export interface AuthContextType {
   isAuthenticated: boolean;
   user: User | null;
-  login: (email: string) => void;
+  login: (email: string, password: string) => Promise<{ success: boolean; error?: string }>;
   logout: () => void;
+  loading: boolean;
 }
 
 // Content
@@ -136,10 +137,11 @@ export interface SiteContent {
 
 export interface ContentContextType {
   content: SiteContent;
-  updateHomePage: (data: HomePageContent) => void;
-  updateAboutPage: (data: AboutPageContent) => void;
-  updateProgramsPage: (data: ProgramsPageContent) => void;
-  updateAdmissionsPage: (data: AdmissionsPageContent) => void;
-  updateContactPage: (data: ContactPageContent) => void;
-  updateEvents: (data: Event[]) => void;
+  updateHomePage: (data: HomePageContent) => Promise<void>;
+  updateAboutPage: (data: AboutPageContent) => Promise<void>;
+  updateProgramsPage: (data: ProgramsPageContent) => Promise<void>;
+  updateAdmissionsPage: (data: AdmissionsPageContent) => Promise<void>;
+  updateContactPage: (data: ContactPageContent) => Promise<void>;
+  updateEvents: (data: Event[]) => Promise<void>;
+  loading: boolean;
 }

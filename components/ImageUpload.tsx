@@ -34,9 +34,28 @@ const ImageUpload: React.FC<ImageUploadProps> = ({ label, currentImageUrl, onIma
     }
   };
 
-  const handleCropComplete = (croppedImage: string) => {
+  const handleCropComplete = async (croppedImage: string) => {
     setPreview(croppedImage);
-    onImageChange(croppedImage);
+    
+    // Try to upload to Backblaze B2
+    try {
+      const { uploadAPI } = await import('../lib/api');
+      const result = await uploadAPI.uploadImage(croppedImage);
+      
+      if (result.fallback) {
+        // B2 not configured, use base64
+        console.log('Using base64 storage (B2 not configured)');
+        onImageChange(croppedImage);
+      } else {
+        // Successfully uploaded to B2
+        console.log('Image uploaded to Backblaze B2:', result.url);
+        onImageChange(result.url);
+      }
+    } catch (error) {
+      console.error('Upload failed, using base64:', error);
+      onImageChange(croppedImage);
+    }
+    
     setImageToCrop(null);
     if(fileInputRef.current) {
         fileInputRef.current.value = "";

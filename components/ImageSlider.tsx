@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import Icon from './Icon';
+import OptimizedImage from './OptimizedImage';
 import { useAccessibility } from '../hooks/useAccessibility';
 
 interface ImageSliderProps {
@@ -30,16 +31,18 @@ const ImageSlider: React.FC<ImageSliderProps> = ({ images }) => {
   return (
     <div className="relative w-full h-full overflow-hidden rounded-lg">
       <div
-        className="flex h-full"
+        className={`flex h-full ${transitionClass}`}
         style={{ transform: `translateX(-${currentIndex * 100}%)` }}
       >
         {images.map((image, index) => (
-          <img
-            key={index}
-            src={image.src}
-            alt={image.alt}
-            className={`w-full h-full object-cover flex-shrink-0 ${transitionClass}`}
-          />
+          <div key={index} className="w-full h-full flex-shrink-0">
+            <OptimizedImage
+              src={image.src}
+              alt={image.alt}
+              className="w-full h-full object-cover"
+              loading={index === 0 ? 'eager' : 'lazy'}
+            />
+          </div>
         ))}
       </div>
 
