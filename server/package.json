@@ -6,6 +6,7 @@
     "dev": "tsx watch src/index.ts",
     "start": "node dist/index.js",
     "build": "tsc",
+    "vercel-build": "tsc",
     "migrate": "tsx src/db/migrate.ts"
   },
   "dependencies": {
