@@ -1,4 +1,4 @@
-import express from 'express';
+import express, { Request, Response } from 'express';
 import cors from 'cors';
 import compression from 'compression';
 import { config } from 'dotenv';
@@ -13,10 +13,13 @@ config();
 
 const app = express();
 const PORT = process.env.PORT || 3001;
+const FRONTEND_URL = process.env.FRONTEND_URL || 'http://localhost:5173';
 
 // Allow multiple origins for CORS (development and production)
 const allowedOrigins = [
   'http://localhost:3000',
+  'http://localhost:3001',
+  'http://localhost:3002',
   'http://localhost:5173',
   'https://csi-hss-manakkala-react-webapp.vercel.app',
   process.env.FRONTEND_URL, // Custom domain if any
@@ -42,7 +45,7 @@ app.use(cors({
 
 // Enable compression for all responses
 app.use(compression({
-  filter: (req, res) => {
+  filter: (req: Request, res: Response) => {
     if (req.headers['x-no-compression']) {
       return false;
     }
