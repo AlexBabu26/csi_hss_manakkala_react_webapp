@@ -66,8 +66,8 @@ const ManageAboutPage = () => {
         e.preventDefault();
         try {
             await updateAboutPage(formData);
-            setStatus('About page content updated successfully!');
-            setTimeout(() => setStatus(''), 3000);
+        setStatus('About page content updated successfully!');
+        setTimeout(() => setStatus(''), 3000);
         } catch (error) {
             setStatus('Failed to update. Please try again.');
             setTimeout(() => setStatus(''), 3000);
@@ -123,12 +123,12 @@ const ManageAboutPage = () => {
                                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
                                     </svg>
                                 </button>
-                                <ImageUpload 
-                                    label="Profile Image" 
-                                    currentImageUrl={person.imageUrl} 
-                                    onImageChange={(b64) => handleImageChange(b64, 'leadership', index)}
-                                    aspect={1}
-                                />
+                            <ImageUpload 
+                                label="Profile Image" 
+                                currentImageUrl={person.imageUrl} 
+                                onImageChange={(b64) => handleImageChange(b64, 'leadership', index)}
+                                aspect={1}
+                            />
                                 <input 
                                     type="text" 
                                     placeholder="Name" 
@@ -143,7 +143,7 @@ const ManageAboutPage = () => {
                                     onChange={(e) => handleLeadershipChange(index, 'title', e.target.value)} 
                                     className={inputClasses} 
                                 />
-                            </div>
+                        </div>
                         )}
                     />
                     <button type="button" onClick={() => handleAddItem('leadership')} className="w-full px-4 py-3 border-2 border-dashed border-primary-300 dark:border-primary-700 rounded-md hover:border-primary-500 hover:bg-primary-50 dark:hover:bg-primary-900/20 transition-colors text-primary-600 dark:text-primary-400 font-medium">
@@ -177,12 +177,12 @@ const ManageAboutPage = () => {
                                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
                                     </svg>
                                 </button>
-                                <ImageUpload 
-                                    label="Facility Image" 
-                                    currentImageUrl={facility.imageUrl} 
-                                    onImageChange={(b64) => handleImageChange(b64, 'facilities', index)}
-                                    aspect={3/2}
-                                />
+                            <ImageUpload 
+                                label="Facility Image" 
+                                currentImageUrl={facility.imageUrl} 
+                                onImageChange={(b64) => handleImageChange(b64, 'facilities', index)}
+                                aspect={3/2}
+                            />
                                 <input 
                                     type="text" 
                                     placeholder="Caption" 
@@ -197,7 +197,7 @@ const ManageAboutPage = () => {
                                     onChange={(e) => handleFacilityChange(index, 'altText', e.target.value)} 
                                     className={inputClasses} 
                                 />
-                            </div>
+                        </div>
                         )}
                     />
                     <button type="button" onClick={() => handleAddItem('facilities')} className="w-full px-4 py-3 border-2 border-dashed border-primary-300 dark:border-primary-700 rounded-md hover:border-primary-500 hover:bg-primary-50 dark:hover:bg-primary-900/20 transition-colors text-primary-600 dark:text-primary-400 font-medium">

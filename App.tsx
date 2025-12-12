@@ -20,8 +20,9 @@ import ManageAboutPage from './pages/admin/ManageAboutPage';
 import ManageProgramsPage from './pages/admin/ManageProgramsPage';
 import ManageAdmissionsPage from './pages/admin/ManageAdmissionsPage';
 import ManageContactPage from './pages/admin/ManageContactPage';
-import { useAccessibility } from './hooks/useAccessibility';
-import ManageEventsPage from './pages/admin/ManageEventsPage';
+  import { useAccessibility } from './hooks/useAccessibility';
+  import ManageEventsPage from './pages/admin/ManageEventsPage';
+  import FloatingActionButtons from './components/FloatingActionButtons';
 
 function App() {
   const { preferences } = useAccessibility();
@@ -62,8 +63,9 @@ function App() {
           </Route>
         </Routes>
       </main>
-      {!isAdminRoute && <Footer />}
-      <AccessibilityToolbar />
+        {!isAdminRoute && <Footer />}
+        <AccessibilityToolbar />
+        <FloatingActionButtons />
     </div>
   );
 }
