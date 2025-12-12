@@ -37,6 +37,9 @@ export interface HeroContent {
   heading: string;
   subheading: string;
   imageUrl: string;
+  csiLogoUrl?: string; // CSI Logo for Header
+  schoolLogoUrl?: string; // School Logo - left side of heading (aligned with 'C')
+  defLogoUrl?: string; // Def Logo - right side of heading (aligned with 'g' of 'Hearing,')
 }
 
 export interface Feature {

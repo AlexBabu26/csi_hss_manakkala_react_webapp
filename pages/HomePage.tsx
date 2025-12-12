@@ -86,6 +86,19 @@ const HomePage = () => {
     // Get proxied image URL for secure access
     const heroImageUrl = uploadAPI.getProxiedImageUrl(hero.imageUrl);
     
+    // Get School Logo URL (left side - aligned with 'C')
+    // Use public image URL for logos (works in img tags without authentication)
+    const getPublicUrl = (url: string | undefined, fallback: string) => {
+        if (!url) return fallback;
+        return url.startsWith('data:') ? url : uploadAPI.getPublicImageUrl(url);
+    };
+    
+    // School Logo - left side (aligned with 'C' of 'C.S.I')
+    const schoolLogoUrl = getPublicUrl(hero.schoolLogoUrl, '');
+    
+    // Def Logo - right side (aligned with 'g' of 'Hearing,')
+    const defLogoUrl = getPublicUrl(hero.defLogoUrl, '');
+    
     return (
         <div className={fadeInClass}>
             {/* Hero Section */}
@@ -106,7 +119,33 @@ const HomePage = () => {
                 
                 {/* Content */}
                 <div className="relative z-20 px-4 py-16 md:py-20 w-full max-w-6xl mx-auto text-center">
-                    <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-extrabold drop-shadow-2xl mb-6 leading-tight px-4">
+                    {/* Logo Container Above Heading */}
+                    <div className="flex justify-center items-center gap-8 sm:gap-12 md:gap-16 mb-6 md:mb-8">
+                        {/* School Logo - Left */}
+                        {schoolLogoUrl && (
+                            <div className="flex flex-col items-center">
+                                <img 
+                                    src={schoolLogoUrl}
+                                    alt="School Logo" 
+                                    className="h-24 w-24 sm:h-28 sm:w-28 md:h-32 md:w-32 lg:h-36 lg:w-36 rounded-full bg-white/10 backdrop-blur-sm p-3 shadow-2xl border-4 border-white/30 object-contain"
+                                />
+                            </div>
+                        )}
+                        
+                        {/* Def Logo - Right */}
+                        {defLogoUrl && (
+                            <div className="flex flex-col items-center">
+                                <img 
+                                    src={defLogoUrl}
+                                    alt="Deaf Community Logo" 
+                                    className="h-24 w-24 sm:h-28 sm:w-28 md:h-32 md:w-32 lg:h-36 lg:w-36 rounded-full bg-white/10 backdrop-blur-sm p-3 shadow-2xl border-4 border-white/30 object-contain"
+                                />
+                            </div>
+                        )}
+                    </div>
+                    
+                    {/* Main Heading */}
+                    <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-extrabold drop-shadow-2xl leading-tight px-4 mb-6">
                         {hero.heading}
                     </h1>
                     <p className="text-base sm:text-lg md:text-xl lg:text-2xl max-w-4xl mx-auto drop-shadow-lg mb-8 leading-relaxed px-4">

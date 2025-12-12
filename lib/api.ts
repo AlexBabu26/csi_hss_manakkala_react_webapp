@@ -1,5 +1,5 @@
 // API client for backend communication
-const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:3002/api';
+const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:3001/api';
 
 // Helper function to get auth token from localStorage
 function getAuthToken(): string | null {
@@ -150,7 +150,7 @@ export const uploadAPI = {
     return fetchWithAuth('/upload/status');
   },
 
-  // Get proxied image URL for secure access to private B2 files
+  // Get proxied image URL for secure access to private B2 files (requires auth)
   getProxiedImageUrl(b2Url: string): string {
     if (b2Url.startsWith('data:')) {
       // Base64 image, return as-is
@@ -158,6 +158,16 @@ export const uploadAPI = {
     }
     // Return proxied URL that will be served through our backend with authorization
     return `${API_BASE_URL}/upload/proxy?url=${encodeURIComponent(b2Url)}`;
+  },
+
+  // Get public proxied image URL (no auth required - for use in img tags)
+  getPublicImageUrl(b2Url: string): string {
+    if (b2Url.startsWith('data:')) {
+      // Base64 image, return as-is
+      return b2Url;
+    }
+    // Return public proxied URL that works in img tags without authentication
+    return `${API_BASE_URL}/upload/public?url=${encodeURIComponent(b2Url)}`;
   },
 
   // Get authorized URL for direct B2 access (alternative to proxy)

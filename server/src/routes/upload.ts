@@ -71,6 +71,104 @@ router.post('/authorize', authenticateToken, async (req: AuthRequest, res) => {
 const imageCache = new Map<string, { buffer: Buffer; contentType: string; timestamp: number }>();
 const CACHE_DURATION = 30 * 60 * 1000; // 30 minutes
 
+// Public proxy endpoint for images (no auth required - for use in img tags)
+router.get('/public', async (req, res) => {
+  try {
+    const url = req.query.url as string;
+
+    if (!url) {
+      return res.status(400).json({ error: 'File URL is required' });
+    }
+
+    // If it's base64, return as-is
+    if (url.startsWith('data:')) {
+      const base64Data = url.split(',')[1];
+      const mimeType = url.match(/data:([^;]+);/)?.[1] || 'image/jpeg';
+      const buffer = Buffer.from(base64Data, 'base64');
+      const etag = generateETag(url);
+      
+      // Check if client has cached version
+      if (req.headers['if-none-match'] === `"${etag}"`) {
+        return res.status(304).send(); // Not Modified
+      }
+      
+      res.set('Content-Type', mimeType);
+      res.set('Cache-Control', 'public, max-age=31536000, immutable'); // Cache for 1 year
+      res.set('ETag', `"${etag}"`);
+      return res.send(buffer);
+    }
+
+    if (!isB2Configured()) {
+      return res.status(503).json({ 
+        error: 'Backblaze B2 not configured'
+      });
+    }
+
+    // Generate consistent ETag for this URL
+    const etag = generateETag(url);
+    
+    // Check if client has cached version (304 Not Modified)
+    if (req.headers['if-none-match'] === `"${etag}"`) {
+      res.set('X-Cache', 'BROWSER-HIT');
+      return res.status(304).send();
+    }
+    
+    // Check server cache
+    const cached = imageCache.get(url);
+    if (cached && (Date.now() - cached.timestamp) < CACHE_DURATION) {
+      res.set('Content-Type', cached.contentType);
+      res.set('Cache-Control', 'public, max-age=86400, immutable'); // 24 hours
+      res.set('X-Cache', 'SERVER-HIT');
+      res.set('ETag', `"${etag}"`);
+      return res.send(cached.buffer);
+    }
+
+    // Download file from B2 with authorization
+    const fileBuffer = await downloadB2File(url);
+    
+    // Determine content type from URL
+    const extension = url.split('.').pop()?.toLowerCase();
+    const mimeTypes: Record<string, string> = {
+      'jpg': 'image/jpeg',
+      'jpeg': 'image/jpeg',
+      'png': 'image/png',
+      'gif': 'image/gif',
+      'webp': 'image/webp',
+      'svg': 'image/svg+xml'
+    };
+    const contentType = mimeTypes[extension || ''] || 'application/octet-stream';
+
+    // Store in cache
+    imageCache.set(url, {
+      buffer: fileBuffer,
+      contentType,
+      timestamp: Date.now()
+    });
+
+    // Clean old cache entries periodically
+    if (imageCache.size > 100) {
+      const now = Date.now();
+      for (const [key, value] of imageCache.entries()) {
+        if (now - value.timestamp > CACHE_DURATION) {
+          imageCache.delete(key);
+        }
+      }
+    }
+
+    res.set('Content-Type', contentType);
+    res.set('Cache-Control', 'public, max-age=86400, immutable'); // 24 hours
+    res.set('X-Cache', 'MISS');
+    res.set('ETag', `"${etag}"`);
+    res.send(fileBuffer);
+  } catch (error: any) {
+    console.error('Public proxy error:', error);
+    res.status(500).json({ 
+      error: 'Failed to retrieve image',
+      details: error.message
+    });
+  }
+});
+
 // Proxy endpoint to serve B2 images through backend (most secure approach)
 router.get('/proxy', authenticateToken, async (req: AuthRequest, res) => {
   try {
@@ -171,16 +269,54 @@ router.get('/proxy', authenticateToken, async (req: AuthRequest, res) => {
   }
 });
 
-// Upload single image (multipart form data)
+// Upload single image (supports both multipart/form-data and JSON with base64)
 router.post('/image', authenticateToken, upload.single('image'), async (req: AuthRequest, res) => {
   try {
-    if (!req.file) {
-      return res.status(400).json({ error: 'No file uploaded' });
+    let fileBuffer: Buffer;
+    let mimeType: string;
+    let fileName: string;
+
+    // Check if it's a multipart file upload
+    if (req.file) {
+      fileBuffer = req.file.buffer;
+      mimeType = req.file.mimetype;
+      fileName = req.file.originalname;
+    } 
+    // Check if it's a JSON payload with base64 image
+    else if (req.body && req.body.image) {
+      const base64Data = req.body.image;
+      
+      // Validate base64 data URL format
+      if (!base64Data.startsWith('data:')) {
+        return res.status(400).json({ error: 'Invalid image format. Expected data URL (data:image/...)' });
+      }
+
+      // Extract mime type and base64 data
+      const matches = base64Data.match(/^data:([^;]+);base64,(.+)$/);
+      if (!matches) {
+        return res.status(400).json({ error: 'Invalid base64 data URL format' });
+      }
+
+      mimeType = matches[1];
+      const base64String = matches[2];
+      
+      try {
+        fileBuffer = Buffer.from(base64String, 'base64');
+      } catch (error) {
+        return res.status(400).json({ error: 'Invalid base64 encoding' });
+      }
+
+      // Generate filename from mime type
+      const extension = mimeType.split('/')[1]?.split(';')[0] || 'jpg';
+      fileName = req.body.fileName || `image_${Date.now()}.${extension}`;
+    } 
+    else {
+      return res.status(400).json({ error: 'No file uploaded. Send either multipart/form-data file or JSON with base64 image.' });
     }
 
     // If B2 is not configured, return base64
     if (!isB2Configured()) {
-      const base64 = `data:${req.file.mimetype};base64,${req.file.buffer.toString('base64')}`;
+      const base64 = `data:${mimeType};base64,${fileBuffer.toString('base64')}`;
       return res.json({ 
         url: base64,
         provider: 'base64',
@@ -190,9 +326,9 @@ router.post('/image', authenticateToken, upload.single('image'), async (req: Aut
 
     // Upload to B2
     const fileUrl = await uploadFileToB2(
-      req.file.originalname,
-      req.file.buffer,
-      req.file.mimetype
+      fileName,
+      fileBuffer,
+      mimeType
     );
 
     res.json({ 
@@ -204,8 +340,25 @@ router.post('/image', authenticateToken, upload.single('image'), async (req: Aut
     console.error('Upload error:', error);
     
     // Fallback to base64 if B2 upload fails
-    if (req.file) {
-      const base64 = `data:${req.file.mimetype};base64,${req.file.buffer.toString('base64')}`;
+    if (req.file || (req.body && req.body.image)) {
+      let fileBuffer: Buffer;
+      let mimeType: string;
+      
+      if (req.file) {
+        fileBuffer = req.file.buffer;
+        mimeType = req.file.mimetype;
+      } else {
+        const base64Data = req.body.image;
+        const matches = base64Data.match(/^data:([^;]+);base64,(.+)$/);
+        if (matches) {
+          mimeType = matches[1];
+          fileBuffer = Buffer.from(matches[2], 'base64');
+        } else {
+          return res.status(500).json({ error: 'Failed to upload image', details: error.message });
+        }
+      }
+      
+      const base64 = `data:${mimeType};base64,${fileBuffer.toString('base64')}`;
       return res.json({ 
         url: base64,
         provider: 'base64-fallback',

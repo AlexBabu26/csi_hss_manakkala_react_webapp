@@ -61,6 +61,44 @@ const ManageHomePage = () => {
                 {/* Hero Section */}
                 <fieldset className="space-y-4 border p-4 rounded-md">
                     <legend className="text-xl font-semibold px-2">Hero Section</legend>
+                    
+                    {/* Logo Upload Fields */}
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                        <ImageUpload 
+                            label="CSI Logo (Header)" 
+                            currentImageUrl={formData.hero.csiLogoUrl || 'https://3dkj7nxtnweewnby.public.blob.vercel-storage.com/CSIlogo.jpg'} 
+                            onImageChange={(b64) => {
+                                setFormData(prev => ({
+                                    ...prev,
+                                    hero: { ...prev.hero, csiLogoUrl: b64 }
+                                }));
+                            }}
+                            aspect={1} 
+                        />
+                        <ImageUpload 
+                            label="School Logo" 
+                            currentImageUrl={formData.hero.schoolLogoUrl || ''} 
+                            onImageChange={(b64) => {
+                                setFormData(prev => ({
+                                    ...prev,
+                                    hero: { ...prev.hero, schoolLogoUrl: b64 }
+                                }));
+                            }}
+                            aspect={1} 
+                        />
+                        <ImageUpload 
+                            label="Def Logo" 
+                            currentImageUrl={formData.hero.defLogoUrl || ''} 
+                            onImageChange={(b64) => {
+                                setFormData(prev => ({
+                                    ...prev,
+                                    hero: { ...prev.hero, defLogoUrl: b64 }
+                                }));
+                            }}
+                            aspect={1} 
+                        />
+                    </div>
+                    
                     <ImageUpload 
                         label="Hero Background Image" 
                         currentImageUrl={formData.hero.imageUrl} 

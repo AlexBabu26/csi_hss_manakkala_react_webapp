@@ -37,7 +37,22 @@ const ImageUpload: React.FC<ImageUploadProps> = ({ label, currentImageUrl, onIma
   const handleCropComplete = async (croppedImage: string) => {
     setPreview(croppedImage);
     
-    // Try to upload to Backblaze B2
+    // For logos, always use base64 to avoid authentication issues with img tags
+    // Check if this is a logo upload by checking the label prop
+    const isLogo = label.toLowerCase().includes('logo');
+    
+    if (isLogo) {
+      // Always use base64 for logos to ensure they work in img tags without auth
+      console.log('Using base64 storage for logo (avoids authentication issues)');
+      onImageChange(croppedImage);
+      setImageToCrop(null);
+      if(fileInputRef.current) {
+        fileInputRef.current.value = "";
+      }
+      return;
+    }
+    
+    // For other images, try to upload to Backblaze B2
     try {
       const { uploadAPI } = await import('../lib/api');
       const result = await uploadAPI.uploadImage(croppedImage);

@@ -16,7 +16,7 @@ import { contentAPI, eventsAPI } from '../lib/api';
 const initialContent: SiteContent = {
   home: {
     hero: {
-      heading: "C.S.I. HSS For The Partially Hearing, Manakala",
+      heading: "C.S.I. HSS For The Partially Hearing, Manakala, Adoor",
       subheading: "Established in 1981, we provide a supportive and engaging environment, empowering students with hearing impairments through quality education.",
       imageUrl: "https://placehold.co/1920x1080/468eef/ffffff?text=C.S.I.+HSS+Manakala"
     },

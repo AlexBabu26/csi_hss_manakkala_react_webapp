@@ -3,10 +3,21 @@ import React, { useState } from 'react';
 import { NavLink, Link } from 'react-router-dom';
 import Icon from './Icon';
 import { useAuth } from '../hooks/useAuth';
+import { useContent } from '../hooks/useContent';
+import { uploadAPI } from '../lib/api';
 
 const Header = () => {
     const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
     const { isAuthenticated, logout } = useAuth();
+    const { content } = useContent();
+    
+    // Get CSI Logo URL - use from content or fallback to default
+    const defaultCsiLogo = 'https://3dkj7nxtnweewnby.public.blob.vercel-storage.com/CSIlogo.jpg';
+    const csiLogoUrl = content.home.hero.csiLogoUrl 
+        ? (content.home.hero.csiLogoUrl.startsWith('data:') 
+            ? content.home.hero.csiLogoUrl 
+            : uploadAPI.getProxiedImageUrl(content.home.hero.csiLogoUrl))
+        : defaultCsiLogo;
 
     const navLinkClasses = "px-3 py-2 rounded-md text-base font-medium focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-primary-700 dark:focus:ring-offset-hc-bg focus:ring-white dark:focus:ring-hc-accent";
     const activeLinkClasses = "bg-primary-800 dark:bg-hc-interactive dark:text-hc-bg";
@@ -25,8 +36,8 @@ const Header = () => {
                 <div className="flex items-center justify-between h-20">
                     <div className="flex-shrink-0">
                         <Link to="/" className="flex items-center space-x-2 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-primary-700 dark:focus:ring-offset-hc-bg focus:ring-white dark:focus:ring-hc-accent rounded-md">
-                            <img src="https://3dkj7nxtnweewnby.public.blob.vercel-storage.com/CSIlogo.jpg" alt="C.S.I. HSS Manakala Logo" className="h-12 w-12" />
-                            <span className="text-xl font-bold">C.S.I. HSS Manakala</span>
+                            <img src={csiLogoUrl} alt="C.S.I. HSS Manakala Logo" className="h-12 w-12 object-cover rounded" />
+                            <span className="text-xl font-bold">C.S.I. HSS PH, Manakala</span>
                         </Link>
                     </div>
                     {/* Desktop Navigation */}
