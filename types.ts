@@ -93,14 +93,16 @@ export interface Program {
   altText: string;
 }
 
+export interface ProgramCategory {
+  id: string;
+  key: string;
+  title: string;
+  programs: Program[];
+}
+
 export interface ProgramsPageContent {
   bannerImageUrl: string;
-  programs: {
-    academics: Program;
-    therapeutics: Program;
-    arts: Program;
-    skills: Program;
-  };
+  categories: ProgramCategory[];
 }
 
 export interface FaqItem {

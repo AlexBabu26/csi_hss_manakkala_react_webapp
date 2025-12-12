@@ -37,7 +37,13 @@ const Header = () => {
                     <div className="flex-shrink-0">
                         <Link to="/" className="flex items-center space-x-2 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-primary-700 dark:focus:ring-offset-hc-bg focus:ring-white dark:focus:ring-hc-accent rounded-md">
                             <img src={csiLogoUrl} alt="C.S.I. HSS Manakala Logo" className="h-12 w-12 object-cover rounded" />
-                            <span className="text-xl font-bold">C.S.I. HSS PH, Manakala</span>
+                            <div className="font-bold leading-tight">
+                                <span className="hidden lg:inline text-xl">CSI HSS Partially Hearing, Manakala</span>
+                                <div className="lg:hidden text-lg">
+                                    <div>CSI HSS Partially Hearing,</div>
+                                    <div>Manakala</div>
+                                </div>
+                            </div>
                         </Link>
                     </div>
                     {/* Desktop Navigation */}

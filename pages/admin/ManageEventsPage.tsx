@@ -71,11 +71,28 @@ const ManageEventsPage = () => {
                             />
                         </div>
                     ))}
-                     <button type="button" onClick={handleAddEvent} className="px-4 py-2 border border-dashed border-zinc-400 rounded-md">Add Event</button>
+                     <button 
+                         type="button" 
+                         onClick={handleAddEvent} 
+                         className="md:px-4 md:py-2 px-3 py-2 border border-dashed border-zinc-400 rounded-md min-w-[40px] min-h-[40px] flex items-center justify-center font-medium hover:bg-zinc-50 dark:hover:bg-zinc-700 focus:outline-none focus:ring-2 focus:ring-primary-500"
+                         title="Add Event"
+                         aria-label="Add new event"
+                     >
+                         <span className="md:hidden text-lg">➕</span>
+                         <span className="hidden md:inline">Add Event</span>
+                     </button>
                 </fieldset>
                 
                 <div>
-                    <button type="submit" className="px-6 py-2 bg-primary-600 text-white rounded-md hover:bg-primary-700">Save Changes</button>
+                    <button 
+                        type="submit" 
+                        className="md:px-6 md:py-2 px-4 py-2 bg-primary-600 text-white rounded-md hover:bg-primary-700 min-w-[44px] min-h-[44px] flex items-center justify-center font-medium focus:outline-none focus:ring-2 focus:ring-primary-500"
+                        title="Save Changes"
+                        aria-label="Save all changes"
+                    >
+                        <span className="md:hidden text-lg">💾</span>
+                        <span className="hidden md:inline">Save Changes</span>
+                    </button>
                     {status && <span className="ml-4 text-green-600">{status}</span>}
                 </div>
             </form>

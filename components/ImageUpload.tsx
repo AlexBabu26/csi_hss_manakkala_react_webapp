@@ -123,8 +123,26 @@ const ImageUpload: React.FC<ImageUploadProps> = ({ label, currentImageUrl, onIma
         )}
         <div className="flex flex-col space-y-2 items-start">
             <div className="flex space-x-1">
-                 <button type="button" onClick={() => setInputType('upload')} className={`${btnBaseClasses} ${inputType === 'upload' ? activeBtnClasses : inactiveBtnClasses}`}>Upload</button>
-                 <button type="button" onClick={() => setInputType('url')} className={`${btnBaseClasses} ${inputType === 'url' ? activeBtnClasses : inactiveBtnClasses}`}>URL</button>
+                 <button 
+                     type="button" 
+                     onClick={() => setInputType('upload')} 
+                     className={`${btnBaseClasses} ${inputType === 'upload' ? activeBtnClasses : inactiveBtnClasses} md:px-3 px-2 min-w-[36px] flex items-center justify-center`}
+                     title="Upload Image"
+                     aria-label="Upload image from device"
+                 >
+                     <span className="md:hidden">📤</span>
+                     <span className="hidden md:inline">Upload</span>
+                 </button>
+                 <button 
+                     type="button" 
+                     onClick={() => setInputType('url')} 
+                     className={`${btnBaseClasses} ${inputType === 'url' ? activeBtnClasses : inactiveBtnClasses} md:px-3 px-2 min-w-[36px] flex items-center justify-center`}
+                     title="Image URL"
+                     aria-label="Add image from URL"
+                 >
+                     <span className="md:hidden">🔗</span>
+                     <span className="hidden md:inline">URL</span>
+                 </button>
             </div>
 
             {inputType === 'upload' && (
@@ -139,9 +157,12 @@ const ImageUpload: React.FC<ImageUploadProps> = ({ label, currentImageUrl, onIma
                     <button
                       type="button"
                       onClick={handleUploadButtonClick}
-                      className="px-4 py-2 border border-zinc-300 dark:border-zinc-600 rounded-md shadow-sm text-sm font-medium text-zinc-700 dark:text-zinc-200 bg-white dark:bg-zinc-800 hover:bg-zinc-50 dark:hover:bg-zinc-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500"
+                      className="md:px-4 md:py-2 px-3 py-2 border border-zinc-300 dark:border-zinc-600 rounded-md shadow-sm text-sm font-medium text-zinc-700 dark:text-zinc-200 bg-white dark:bg-zinc-800 hover:bg-zinc-50 dark:hover:bg-zinc-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500 min-w-[40px] min-h-[40px] flex items-center justify-center"
+                      title="Change Image"
+                      aria-label="Change current image"
                     >
-                      Change Image
+                      <span className="md:hidden text-lg">🖼️</span>
+                      <span className="hidden md:inline">Change Image</span>
                     </button>
                 </div>
             )}
@@ -158,9 +179,12 @@ const ImageUpload: React.FC<ImageUploadProps> = ({ label, currentImageUrl, onIma
                     <button 
                         type="button"
                         onClick={handleSetUrl}
-                        className="px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-primary-600 hover:bg-primary-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500"
+                        className="md:px-4 md:py-2 px-3 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-primary-600 hover:bg-primary-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500 min-w-[40px] min-h-[40px] flex items-center justify-center"
+                        title="Set URL"
+                        aria-label="Set image URL"
                     >
-                        Set
+                        <span className="md:hidden">✓</span>
+                        <span className="hidden md:inline">Set</span>
                     </button>
                 </div>
             )}

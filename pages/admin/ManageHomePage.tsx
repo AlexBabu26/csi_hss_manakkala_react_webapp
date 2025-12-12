@@ -139,7 +139,15 @@ const ManageHomePage = () => {
                     {formData.testimonials.map((testimonial, index) => (
                         <div key={testimonial.id} className="p-3 border-t relative">
                              <h3 className="font-medium mb-2">Testimonial {index + 1}</h3>
-                             <button type="button" onClick={() => handleDeleteTestimonial(testimonial.id)} className="absolute top-2 right-2 text-red-500 hover:text-red-700 p-1" aria-label={`Delete testimonial from ${testimonial.name}`}>&times;</button>
+                             <button 
+                                 type="button" 
+                                 onClick={() => handleDeleteTestimonial(testimonial.id)} 
+                                 className="absolute top-2 right-2 text-red-500 hover:text-red-700 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-full p-1 min-w-[28px] min-h-[28px] flex items-center justify-center focus:outline-none focus:ring-2 focus:ring-red-400" 
+                                 aria-label={`Delete testimonial from ${testimonial.name}`}
+                                 title="Delete testimonial"
+                             >
+                                 <span className="text-lg font-bold">&times;</span>
+                             </button>
                              <ImageUpload 
                                 label="Author Image" 
                                 currentImageUrl={testimonial.imageUrl} 
@@ -160,11 +168,28 @@ const ManageHomePage = () => {
                             </div>
                         </div>
                     ))}
-                    <button type="button" onClick={handleAddTestimonial} className="px-4 py-2 border border-dashed border-zinc-400 rounded-md text-sm font-medium text-zinc-700 dark:text-zinc-200 hover:bg-zinc-50 dark:hover:bg-zinc-700">Add Testimonial</button>
+                    <button 
+                        type="button" 
+                        onClick={handleAddTestimonial} 
+                        className="md:px-4 md:py-2 px-3 py-2 border border-dashed border-zinc-400 rounded-md text-sm font-medium text-zinc-700 dark:text-zinc-200 hover:bg-zinc-50 dark:hover:bg-zinc-700 min-w-[40px] min-h-[40px] flex items-center justify-center focus:outline-none focus:ring-2 focus:ring-primary-500"
+                        title="Add Testimonial"
+                        aria-label="Add new testimonial"
+                    >
+                        <span className="md:hidden text-lg">💬</span>
+                        <span className="hidden md:inline">Add Testimonial</span>
+                    </button>
                 </fieldset>
 
                 <div>
-                    <button type="submit" className="px-6 py-2 bg-primary-600 text-white rounded-md hover:bg-primary-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500">Save Changes</button>
+                    <button 
+                        type="submit" 
+                        className="md:px-6 md:py-2 px-4 py-2 bg-primary-600 text-white rounded-md hover:bg-primary-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500 min-w-[44px] min-h-[44px] flex items-center justify-center font-medium"
+                        title="Save Changes"
+                        aria-label="Save all changes"
+                    >
+                        <span className="md:hidden text-lg">💾</span>
+                        <span className="hidden md:inline">Save Changes</span>
+                    </button>
                     {status && <span className="ml-4 text-green-600">{status}</span>}
                 </div>
             </form>

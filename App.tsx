@@ -65,7 +65,7 @@ function App() {
       </main>
         {!isAdminRoute && <Footer />}
         <AccessibilityToolbar />
-        <FloatingActionButtons />
+        {!isAdminRoute && <FloatingActionButtons />}
     </div>
   );
 }

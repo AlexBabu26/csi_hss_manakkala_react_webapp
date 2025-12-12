@@ -48,12 +48,40 @@ const initialContent: SiteContent = {
   },
   programs: {
     bannerImageUrl: "https://placehold.co/1200x400/468eef/FFFFFF?text=Our+Programs",
-    programs: {
-        academics: { id: 'p1', title: 'Higher Secondary Courses', description: "We offer Science (English, Malayalam, Physics, Chemistry, Mathematics, Computer Science) and Commerce (English, Malayalam, Accountancy with Computerised Accounting, Business Studies, Economics, Computer Application) batches for higher secondary students.", imageUrl: 'https://placehold.co/600x400/e0effe/333333?text=Academics', altText: 'Students in a classroom learning science.' },
-        therapeutics: { id: 'p2', title: 'Speech Therapy', description: "The school provides dedicated speech therapy to improve the speech and language for children with communication disorders. Speech classes are also conducted during vacation periods.", imageUrl: 'https://placehold.co/600x400/e0effe/333333?text=Therapy', altText: 'A therapist working with a child on speech exercises.' },
-        arts: { id: 'p3', title: 'Extra-Curricular Activities', description: "We encourage students to showcase their talents in events like the State Special School Youth Festival and Work Experience Fairs, with activities like wood craft, paper craft, ornament making, and more.", imageUrl: 'https://placehold.co/600x400/e0effe/333333?text=Arts', altText: 'Students participating in a craft competition.' },
-        skills: { id: 'p4', title: 'Guidance & Counselling', description: "The Souhrida Club provides counselling for parents and students to cope with challenges. We also have a career guidance cell to make students aware of various job opportunities.", imageUrl: 'https://placehold.co/600x400/e0effe/333333?text=Counselling', altText: 'A counsellor talking with a student and parent.' },
-    }
+    categories: [
+      {
+        id: 'cat1',
+        key: 'academics',
+        title: 'Academic Programs',
+        programs: [
+          { id: 'p1', title: 'Higher Secondary Courses', description: "We offer Science (English, Malayalam, Physics, Chemistry, Mathematics, Computer Science) and Commerce (English, Malayalam, Accountancy with Computerised Accounting, Business Studies, Economics, Computer Application) batches for higher secondary students.", imageUrl: 'https://placehold.co/600x400/e0effe/333333?text=Academics', altText: 'Students in a classroom learning science.' }
+        ]
+      },
+      {
+        id: 'cat2',
+        key: 'therapeutics',
+        title: 'Therapeutic Services',
+        programs: [
+          { id: 'p2', title: 'Speech Therapy', description: "The school provides dedicated speech therapy to improve the speech and language for children with communication disorders. Speech classes are also conducted during vacation periods.", imageUrl: 'https://placehold.co/600x400/e0effe/333333?text=Therapy', altText: 'A therapist working with a child on speech exercises.' }
+        ]
+      },
+      {
+        id: 'cat3',
+        key: 'arts',
+        title: 'Arts & Extra-Curricular',
+        programs: [
+          { id: 'p3', title: 'Extra-Curricular Activities', description: "We encourage students to showcase their talents in events like the State Special School Youth Festival and Work Experience Fairs, with activities like wood craft, paper craft, ornament making, and more.", imageUrl: 'https://placehold.co/600x400/e0effe/333333?text=Arts', altText: 'Students participating in a craft competition.' }
+        ]
+      },
+      {
+        id: 'cat4',
+        key: 'skills',
+        title: 'Life Skills & Counselling',
+        programs: [
+          { id: 'p4', title: 'Guidance & Counselling', description: "The Souhrida Club provides counselling for parents and students to cope with challenges. We also have a career guidance cell to make students aware of various job opportunities.", imageUrl: 'https://placehold.co/600x400/e0effe/333333?text=Counselling', altText: 'A counsellor talking with a student and parent.' }
+        ]
+      }
+    ]
   },
   admissions: {
     bannerImageUrl: "https://placehold.co/1200x400/468eef/FFFFFF?text=Admissions",
@@ -93,10 +121,50 @@ export const ContentProvider: React.FC<{ children: React.ReactNode }> = ({ child
                 ]);
                 
                 if (isMounted) {
+                    console.log('Fetched content data:', contentData);
+                    console.log('Programs data structure:', contentData.programs);
+                    
+                    // Migration: Convert old programs format to new categories format if needed
+                    let programsData = contentData.programs || initialContent.programs;
+                    if (programsData && !programsData.categories && programsData.programs) {
+                        console.log('Converting old programs format to new categories format...');
+                        const oldPrograms = programsData.programs;
+                        programsData = {
+                            bannerImageUrl: programsData.bannerImageUrl,
+                            categories: [
+                                {
+                                    id: 'cat1',
+                                    key: 'academics',
+                                    title: 'Academic Programs',
+                                    programs: oldPrograms.academics ? [oldPrograms.academics] : []
+                                },
+                                {
+                                    id: 'cat2',
+                                    key: 'therapeutics',
+                                    title: 'Therapeutic Services',
+                                    programs: oldPrograms.therapeutics ? [oldPrograms.therapeutics] : []
+                                },
+                                {
+                                    id: 'cat3',
+                                    key: 'arts',
+                                    title: 'Arts & Extra-Curricular',
+                                    programs: oldPrograms.arts ? [oldPrograms.arts] : []
+                                },
+                                {
+                                    id: 'cat4',
+                                    key: 'skills',
+                                    title: 'Life Skills & Counselling',
+                                    programs: oldPrograms.skills ? [oldPrograms.skills] : []
+                                }
+                            ]
+                        };
+                        console.log('Converted programs data:', programsData);
+                    }
+                    
                     setContent({
                         home: contentData.home || initialContent.home,
                         about: contentData.about || initialContent.about,
-                        programs: contentData.programs || initialContent.programs,
+                        programs: programsData,
                         admissions: contentData.admissions || initialContent.admissions,
                         contact: contentData.contact || initialContent.contact,
                         events: eventsData || initialContent.events,
