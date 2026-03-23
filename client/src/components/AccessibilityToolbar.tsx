@@ -2,7 +2,7 @@
 
 import React, { useState } from 'react';
 import { useAccessibility } from '../contexts/AccessibilityContext';
-import type { FontSize, FontFamily } from '../contexts/AccessibilityContext';
+import type { FontSize } from '../contexts/AccessibilityContext';
 
 const ToolbarButton: React.FC<{ onClick: () => void; children: React.ReactNode; label: string; active?: boolean }> = ({ onClick, children, label, active = false }) => {
   const baseClasses = "flex flex-col items-center justify-center p-2 rounded-lg focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-zinc-100 dark:focus:ring-offset-hc-bg focus:ring-primary-500 dark:focus:ring-hc-interactive";

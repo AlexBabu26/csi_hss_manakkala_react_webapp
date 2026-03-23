@@ -78,6 +78,8 @@ export default function ImageCropperModal({ isOpen, imageSrc, onClose, onCropCom
                             onComplete={(c) => setCompletedCrop(c)}
                             aspect={aspectRatio}
                         >
+                            {/* ReactCrop needs a real img element for measurements and canvas export. */}
+                            {/* eslint-disable-next-line @next/next/no-img-element */}
                             <img
                                 ref={imgRef}
                                 src={imageSrc}

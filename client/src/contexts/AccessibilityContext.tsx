@@ -39,7 +39,7 @@ const getInitialPreferences = (): AccessibilityPreferences => {
             contrast: 'normal',
             motion: 'normal',
         };
-    } catch (error) {
+    } catch {
         return {
             fontSize: 'normal',
             fontFamily: 'standard',
