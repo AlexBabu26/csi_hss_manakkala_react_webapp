@@ -1,0 +1,27 @@
+import type { Metadata } from "next";
+import "./globals.css";
+import ConditionalLayout from "../components/ConditionalLayout";
+import SkipNavigation from "../components/SkipNavigation";
+import Providers from "../components/Providers";
+
+export const metadata: Metadata = {
+  title: "CSI HSS For The Partially Hearing, Manakala",
+  description: "Official website for the CSI Higher Secondary School For The Partially Hearing in Manakala.",
+};
+
+export default function RootLayout({
+  children,
+}: Readonly<{
+  children: React.ReactNode;
+}>) {
+  return (
+    <html lang="en">
+      <body className="antialiased min-h-screen flex flex-col">
+        <Providers>
+          <SkipNavigation />
+          <ConditionalLayout>{children}</ConditionalLayout>
+        </Providers>
+      </body>
+    </html>
+  );
+}

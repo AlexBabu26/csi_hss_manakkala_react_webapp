@@ -1,31 +1,51 @@
-import { Request, Response, NextFunction } from 'express';
-import jwt from 'jsonwebtoken';
+import { NextFunction, Request, Response } from "express";
+import jwt from "jsonwebtoken";
+import { loadEnv } from "../env";
 
-export interface AuthRequest extends Request {
-  user?: {
-    id: number;
-    email: string;
-  };
-}
+loadEnv();
 
-export function authenticateToken(req: AuthRequest, res: Response, next: NextFunction) {
-  const authHeader = req.headers['authorization'];
-  const token = authHeader && authHeader.split(' ')[1]; // Bearer TOKEN
+type AuthTokenPayload = {
+  id: number;
+  email: string;
+};
 
-  if (!token) {
-    return res.status(401).json({ error: 'Access token required' });
+export const authenticate = (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  const authHeader = req.headers.authorization;
+
+  if (!authHeader || !authHeader.startsWith("Bearer ")) {
+    res.status(401).json({ error: "Unauthorized: Missing token" });
+    return;
   }
+
+  const jwtSecret = process.env.JWT_SECRET;
+
+  if (!jwtSecret) {
+    res.status(500).json({ error: "Server authentication is not configured" });
+    return;
+  }
+
+  const token = authHeader.split(" ")[1];
 
   try {
-    const secret = process.env.JWT_SECRET || 'default-secret-change-in-production';
-    const decoded = jwt.verify(token, secret) as { id: number; email: string };
-    req.user = decoded;
+    const decoded = jwt.verify(token, jwtSecret);
+
+    if (
+      typeof decoded !== "object" ||
+      decoded === null ||
+      typeof decoded.id !== "number" ||
+      typeof decoded.email !== "string"
+    ) {
+      res.status(401).json({ error: "Unauthorized: Invalid token" });
+      return;
+    }
+
+    req.user = decoded as AuthTokenPayload;
     next();
-  } catch (error) {
-    return res.status(403).json({ error: 'Invalid or expired token' });
+  } catch {
+    res.status(401).json({ error: "Unauthorized: Invalid token" });
   }
-}
-
-
-
-
+};

@@ -1,230 +1,154 @@
-import { Router } from 'express';
-import { sql } from '../db/pool.js'; // Using connection pool
-import { authenticateToken, AuthRequest } from '../middleware/auth.js';
-import { z } from 'zod';
+import express from "express";
+import { z } from "zod";
+import { query } from "../db";
+import { authenticate } from "../middleware/auth";
 
-const router = Router();
+const router = express.Router();
 
 const eventSchema = z.object({
   title: z.string().min(1),
-  event_date: z.string(), // ISO date string
-  description: z.string(),
-  images: z.array(z.string()),
+  date: z.string(),
+  description: z.string().optional(),
 });
 
-// In-memory cache for events
-let eventsCache: { data: any[]; timestamp: number } | null = null;
-const CACHE_DURATION = 5 * 60 * 1000; // 5 minutes
+function toEventDate(dateStr: string): string {
+  return new Date(dateStr).toISOString().split("T")[0];
+}
 
-// Get all events (public)
-router.get('/', async (_req, res) => {
+function slugify(title: string, date: string): string {
+  const datePart = toEventDate(date);
+  return (
+    title
+      .toLowerCase()
+      .replace(/[^a-z0-9\s-]/g, "")
+      .trim()
+      .replace(/\s+/g, "-")
+      .slice(0, 60) +
+    "-" +
+    datePart
+  );
+}
+
+router.get("/", async (_req, res) => {
   try {
-    // Check cache first
-    if (eventsCache && (Date.now() - eventsCache.timestamp) < CACHE_DURATION) {
-      res.set('X-Cache', 'HIT');
-      res.set('Cache-Control', 'public, max-age=300'); // 5 minutes
-      return res.json(eventsCache.data);
-    }
-
-    const events = await sql`
-      SELECT event_id as id, title, event_date, description, created_at, updated_at
-      FROM tbl_events
-      ORDER BY event_date DESC
-    `;
-
-    // Get images for each event
-    const formattedEvents = await Promise.all(events.map(async (event) => {
-      const eventImages = await sql`
-        SELECT image_url
-        FROM tbl_event_images
-        WHERE event_id = ${event.id}
-        ORDER BY display_order
-      `;
-      
-      return {
-        id: event.id.toString(),
-        title: event.title,
-        date: event.event_date,
-        description: event.description || '',
-        images: eventImages.map(img => img.image_url),
-      };
-    }));
-
-    // Update cache
-    eventsCache = {
-      data: formattedEvents,
-      timestamp: Date.now()
-    };
-
-    res.set('X-Cache', 'MISS');
-    res.set('Cache-Control', 'public, max-age=300'); // 5 minutes
-    res.json(formattedEvents);
+    const result = await query(
+      `SELECT event_id AS id, title, description,
+              event_date AS date, event_time, location, category,
+              is_featured, is_published, created_at, updated_at
+       FROM tbl_events
+       WHERE is_published = true
+       ORDER BY event_date DESC`
+    );
+    res.json(result.rows);
   } catch (error) {
-    console.error('Error fetching events:', error);
-    res.status(500).json({ error: 'Failed to fetch events' });
+    console.error("Get events error:", error);
+    res.status(500).json({ error: "Internal server error" });
   }
 });
 
-// Get single event (public)
-router.get('/:id', async (req, res) => {
+router.get("/:id", async (req, res) => {
   try {
     const { id } = req.params;
-    const result = await sql`
-      SELECT event_id as id, title, event_date, description, created_at, updated_at
-      FROM tbl_events
-      WHERE event_id = ${id}
-    `;
+    const result = await query(
+      `SELECT event_id AS id, title, description,
+              event_date AS date, event_time, location, category,
+              is_featured, is_published, created_at, updated_at
+       FROM tbl_events WHERE event_id = $1`,
+      [id]
+    );
 
-    if (result.length === 0) {
-      return res.status(404).json({ error: 'Event not found' });
+    if (result.rows.length === 0) {
+      res.status(404).json({ error: "Event not found" });
+      return;
     }
 
-    const event = result[0];
-    
-    // Get event images
-    const eventImages = await sql`
-      SELECT image_url
-      FROM tbl_event_images
-      WHERE event_id = ${id}
-      ORDER BY display_order
-    `;
-    
-    res.json({
-      id: event.id.toString(),
-      title: event.title,
-      date: event.event_date,
-      description: event.description || '',
-      images: eventImages.map(img => img.image_url),
-    });
+    res.json(result.rows[0]);
   } catch (error) {
-    console.error('Error fetching event:', error);
-    res.status(500).json({ error: 'Failed to fetch event' });
+    console.error("Get event error:", error);
+    res.status(500).json({ error: "Internal server error" });
   }
 });
 
-// Create event (protected)
-router.post('/', authenticateToken, async (req: AuthRequest, res) => {
+router.post("/", authenticate, async (req, res) => {
   try {
-    const { title, event_date, description, images } = eventSchema.parse(req.body);
+    const { title, date, description } = eventSchema.parse(req.body);
+    const userId = req.user?.id ?? null;
+    const eventDate = toEventDate(date);
+    const slug = slugify(title, date);
 
-    const result = await sql`
-      INSERT INTO tbl_events (title, event_date, description, is_published)
-      VALUES (${title}, ${event_date}, ${description}, true)
-      RETURNING event_id as id, title, event_date, description
-    `;
+    const result = await query(
+      `INSERT INTO tbl_events (title, slug, description, event_date, is_published, updated_by)
+       VALUES ($1, $2, $3, $4, true, $5)
+       RETURNING event_id AS id, title, description, event_date AS date, is_published, created_at`,
+      [title, slug, description || "", eventDate, userId]
+    );
 
-    const event = result[0];
-    const eventId = event.id;
-    
-    // Insert event images
-    if (images && images.length > 0) {
-      for (let i = 0; i < images.length; i++) {
-        await sql`
-          INSERT INTO tbl_event_images (event_id, image_url, display_order, is_primary)
-          VALUES (${eventId}, ${images[i]}, ${i + 1}, ${i === 0})
-        `;
-      }
-    }
-    
-    // Invalidate cache
-    eventsCache = null;
-
-    res.status(201).json({
-      id: event.id.toString(),
-      title: event.title,
-      date: event.event_date,
-      description: event.description || '',
-      images: images,
-    });
+    res
+      .status(201)
+      .json({ message: "Event created successfully", event: result.rows[0] });
   } catch (error) {
     if (error instanceof z.ZodError) {
-      return res.status(400).json({ error: 'Invalid input', details: error.errors });
+      res.status(400).json({ error: "Invalid input", details: error.issues });
+      return;
     }
-    console.error('Error creating event:', error);
-    res.status(500).json({ error: 'Failed to create event' });
+
+    console.error("Create event error:", error);
+    res.status(500).json({ error: "Internal server error" });
   }
 });
 
-// Update event (protected)
-router.put('/:id', authenticateToken, async (req: AuthRequest, res) => {
+router.put("/:id", authenticate, async (req, res) => {
   try {
     const { id } = req.params;
-    const { title, event_date, description, images } = eventSchema.parse(req.body);
+    const { title, date, description } = eventSchema.parse(req.body);
+    const userId = req.user?.id ?? null;
+    const eventDate = toEventDate(date);
+    const slug = slugify(title, date);
 
-    const result = await sql`
-      UPDATE tbl_events 
-      SET 
-        title = ${title},
-        event_date = ${event_date},
-        description = ${description},
-        updated_at = NOW()
-      WHERE event_id = ${id}
-      RETURNING event_id as id, title, event_date, description
-    `;
+    const result = await query(
+      `UPDATE tbl_events
+       SET title = $1, slug = $2, description = $3, event_date = $4,
+           updated_by = $5, updated_at = CURRENT_TIMESTAMP
+       WHERE event_id = $6
+       RETURNING event_id AS id, title, description, event_date AS date, updated_at`,
+      [title, slug, description || "", eventDate, userId, id]
+    );
 
-    if (result.length === 0) {
-      return res.status(404).json({ error: 'Event not found' });
+    if (result.rows.length === 0) {
+      res.status(404).json({ error: "Event not found" });
+      return;
     }
 
-    // Delete existing images and re-insert
-    await sql`DELETE FROM tbl_event_images WHERE event_id = ${id}`;
-    
-    if (images && images.length > 0) {
-      for (let i = 0; i < images.length; i++) {
-        await sql`
-          INSERT INTO tbl_event_images (event_id, image_url, display_order, is_primary)
-          VALUES (${id}, ${images[i]}, ${i + 1}, ${i === 0})
-        `;
-      }
-    }
-
-    // Invalidate cache
-    eventsCache = null;
-
-    const event = result[0];
-    res.json({
-      id: event.id.toString(),
-      title: event.title,
-      date: event.event_date,
-      description: event.description || '',
-      images: images,
-    });
+    res.json({ message: "Event updated successfully", event: result.rows[0] });
   } catch (error) {
     if (error instanceof z.ZodError) {
-      return res.status(400).json({ error: 'Invalid input', details: error.errors });
+      res.status(400).json({ error: "Invalid input", details: error.issues });
+      return;
     }
-    console.error('Error updating event:', error);
-    res.status(500).json({ error: 'Failed to update event' });
+
+    console.error("Update event error:", error);
+    res.status(500).json({ error: "Internal server error" });
   }
 });
 
-// Delete event (protected)
-router.delete('/:id', authenticateToken, async (req: AuthRequest, res) => {
+router.delete("/:id", authenticate, async (req, res) => {
   try {
     const { id } = req.params;
+    const result = await query(
+      "DELETE FROM tbl_events WHERE event_id = $1 RETURNING event_id",
+      [id]
+    );
 
-    // Delete event images first (cascade should handle this, but being explicit)
-    await sql`DELETE FROM tbl_event_images WHERE event_id = ${id}`;
-    
-    const result = await sql`
-      DELETE FROM tbl_events 
-      WHERE event_id = ${id}
-      RETURNING event_id as id
-    `;
-
-    if (result.length === 0) {
-      return res.status(404).json({ error: 'Event not found' });
+    if (result.rows.length === 0) {
+      res.status(404).json({ error: "Event not found" });
+      return;
     }
 
-    // Invalidate cache
-    eventsCache = null;
-
-    res.json({ message: 'Event deleted successfully' });
+    res.json({ message: "Event deleted successfully" });
   } catch (error) {
-    console.error('Error deleting event:', error);
-    res.status(500).json({ error: 'Failed to delete event' });
+    console.error("Delete event error:", error);
+    res.status(500).json({ error: "Internal server error" });
   }
 });
 
 export default router;
-

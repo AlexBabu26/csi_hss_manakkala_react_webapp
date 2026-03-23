@@ -1,24 +1,40 @@
-# Logs
-logs
-*.log
+# Dependencies
+node_modules/
+
+# Build outputs
+.next/
+out/
+build/
+dist/
+
+# Environment and secrets
+.env
+.env.*
+!.env.example
+
+# Logs and debug
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
-pnpm-debug.log*
-lerna-debug.log*
+.pnpm-debug.log*
 
-node_modules
-dist
-dist-ssr
-*.local
-
-# Editor directories and files
-.vscode/*
-!.vscode/extensions.json
-.idea
+# OS and editor
 .DS_Store
-*.suo
-*.ntvs*
-*.njsproj
-*.sln
-*.sw?
+*.swp
+*.swo
+.idea/
+.vscode/
+
+# Vercel
+.vercel
+blob-backup/
+
+# TypeScript
+*.tsbuildinfo
+
+# Testing
+coverage/
+
+# Optional: lockfiles (uncomment if you want to ignore)
+# package-lock.json
+# yarn.lock

@@ -1,101 +1,64 @@
-import { Router } from 'express';
-import { sql } from '../db/pool.js'; // Using connection pool
-import { authenticateToken, AuthRequest } from '../middleware/auth.js';
-import { z } from 'zod';
+import express from "express";
+import { z } from "zod";
+import { query } from "../db";
+import { authenticate } from "../middleware/auth";
 
-const router = Router();
+const router = express.Router();
 
-// In-memory cache for content
-let contentCache: { data: Record<string, any>; timestamp: number } | null = null;
-const CACHE_DURATION = 5 * 60 * 1000; // 5 minutes
+const contentSchema = z.object({
+  content_key: z.string(),
+  content_data: z.any(),
+});
 
-// Get all content (public)
-router.get('/', async (_req, res) => {
+router.get("/:page_key", async (req, res) => {
   try {
-    // Check cache first
-    if (contentCache && (Date.now() - contentCache.timestamp) < CACHE_DURATION) {
-      res.set('X-Cache', 'HIT');
-      res.set('Cache-Control', 'public, max-age=300'); // 5 minutes
-      return res.json(contentCache.data);
+    const { page_key } = req.params;
+    const result = await query(
+      "SELECT content_data FROM tbl_site_content WHERE content_key = $1",
+      [page_key]
+    );
+
+    if (result.rows.length === 0) {
+      res.status(404).json({ error: "Content not found" });
+      return;
     }
 
-    const content = await sql`
-      SELECT content_key, content_data 
-      FROM tbl_site_content 
-      ORDER BY content_key
-    `;
+    res.json(result.rows[0].content_data);
+  } catch (error) {
+    console.error("Get content error:", error);
+    res.status(500).json({ error: "Internal server error" });
+  }
+});
 
-    const contentMap: Record<string, any> = {};
-    content.forEach(row => {
-      contentMap[row.content_key] = row.content_data;
+router.put("/:page_key", authenticate, async (req, res) => {
+  try {
+    const { page_key } = req.params;
+    const content_data = req.body;
+    const parsed = contentSchema.parse({ content_key: page_key, content_data });
+    const userId = req.user?.id ?? null;
+
+    const result = await query(
+      `INSERT INTO tbl_site_content (content_key, content_data, updated_by, updated_at)
+       VALUES ($1, $2, $3, CURRENT_TIMESTAMP)
+       ON CONFLICT (content_key)
+       DO UPDATE SET content_data = $2, updated_by = $3, updated_at = CURRENT_TIMESTAMP
+       RETURNING *`,
+      [page_key, JSON.stringify(parsed.content_data), userId]
+    );
+
+    res.json({
+      message: "Content updated successfully",
+      data: result.rows[0].content_data,
     });
-
-    // Update cache
-    contentCache = {
-      data: contentMap,
-      timestamp: Date.now()
-    };
-
-    res.set('X-Cache', 'MISS');
-    res.set('Cache-Control', 'public, max-age=300'); // 5 minutes
-    res.json(contentMap);
   } catch (error) {
-    console.error('Error fetching content:', error);
-    res.status(500).json({ error: 'Failed to fetch content' });
-  }
-});
-
-// Get specific content by key (public)
-router.get('/:key', async (req, res) => {
-  try {
-    const { key } = req.params;
-    const result = await sql`
-      SELECT content_data 
-      FROM tbl_site_content 
-      WHERE content_key = ${key}
-    `;
-
-    if (result.length === 0) {
-      return res.status(404).json({ error: 'Content not found' });
+    if (error instanceof z.ZodError) {
+      res.status(400).json({ error: "Invalid input", details: error.issues });
+      return;
     }
 
-    res.json(result[0].content_data);
-  } catch (error) {
-    console.error('Error fetching content:', error);
-    res.status(500).json({ error: 'Failed to fetch content' });
-  }
-});
-
-// Update content (protected)
-router.put('/:key', authenticateToken, async (req: AuthRequest, res) => {
-  try {
-    const { key } = req.params;
-    const contentData = req.body;
-
-    // Update the content
-    const result = await sql`
-      UPDATE tbl_site_content 
-      SET 
-        content_data = ${JSON.stringify(contentData)},
-        updated_by = ${req.user!.id},
-        updated_at = NOW()
-      WHERE content_key = ${key}
-      RETURNING content_key, content_data
-    `;
-
-    if (result.length === 0) {
-      return res.status(404).json({ error: 'Content not found' });
-    }
-
-    // Invalidate cache on update
-    contentCache = null;
-
-    res.json(result[0].content_data);
-  } catch (error) {
-    console.error('Error updating content:', error);
-    res.status(500).json({ error: 'Failed to update content' });
+    console.error("Update content error:", error);
+    res.status(500).json({ error: "Internal server error" });
   }
 });
 
 export default router;
-
