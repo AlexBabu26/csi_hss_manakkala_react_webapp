@@ -1,7 +1,6 @@
 import type { Metadata } from "next";
 import "./globals.css";
-import Header from "../components/Header";
-import Footer from "../components/Footer";
+import ConditionalLayout from "../components/ConditionalLayout";
 import SkipNavigation from "../components/SkipNavigation";
 import Providers from "../components/Providers";
 
@@ -20,11 +19,7 @@ export default function RootLayout({
       <body className="antialiased min-h-screen flex flex-col">
         <Providers>
           <SkipNavigation />
-          <Header />
-          <main id="main-content" className="flex-grow">
-            {children}
-          </main>
-          <Footer />
+          <ConditionalLayout>{children}</ConditionalLayout>
         </Providers>
       </body>
     </html>
