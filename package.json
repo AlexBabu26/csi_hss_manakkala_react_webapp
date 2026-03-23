@@ -3,8 +3,11 @@
   "version": "1.0.0",
   "private": true,
   "scripts": {
+    "blob:download": "node scripts/vercel-blob-download.mjs",
     "dev": "concurrently \"npm run dev:client\" \"npm run dev:server\"",
     "dev:client": "cd client && npm run dev",
+    "dev:client:webpack": "cd client && npm run dev:webpack",
+    "dev:webpack": "concurrently \"npm run dev:client:webpack\" \"npm run dev:server\"",
     "dev:server": "cd server && npm run dev",
     "build": "npm run build:client && npm run build:server",
     "build:client": "cd client && npm run build",
@@ -12,6 +15,7 @@
     "install:all": "npm install && cd client && npm install && cd ../server && npm install"
   },
   "devDependencies": {
+    "@vercel/blob": "^0.26.0",
     "concurrently": "^8.2.2"
   }
 }
